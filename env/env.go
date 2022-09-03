@@ -3,6 +3,12 @@ package env
 import (
 	"os"
 	"regexp"
+	"strings"
+)
+
+const (
+	DefaultPort    = ":5000"
+	DefaultAppName = "AppName Unset"
 )
 
 func Port() string {
@@ -11,9 +17,19 @@ func Port() string {
 		return port
 	}
 
-	return ":5000"
+	return DefaultPort
 }
 
 func AppName() string {
-	return os.Getenv("AppName")
+	appName := os.Getenv("AppName")
+	appName = strings.Trim(appName, " ")
+	if appName != "" {
+		return appName
+	}
+
+	return DefaultAppName
+}
+
+func AppEnv() string {
+	return os.Getenv("AppEnv")
 }

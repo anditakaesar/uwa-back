@@ -13,3 +13,7 @@ func Port() string {
 
 	return ":5000"
 }
+
+func AppName() string {
+	return os.Getenv("AppName")
+}

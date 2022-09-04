@@ -17,3 +17,7 @@
 # Env
 *_env.sh
 *.env
+
+# http test REST
+http/
+*.http

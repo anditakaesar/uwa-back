@@ -9,6 +9,11 @@ import (
 const (
 	DefaultPort    = ":5000"
 	DefaultAppName = "AppName Unset"
+	DefaultEnv     = "development"
+)
+
+const (
+	EnvProduction = "production"
 )
 
 func Port() string {
@@ -31,5 +36,9 @@ func AppName() string {
 }
 
 func AppEnv() string {
-	return os.Getenv("AppEnv")
+	env := os.Getenv("AppEnv")
+	if env != "" {
+		return env
+	}
+	return DefaultEnv
 }

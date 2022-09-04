@@ -79,6 +79,11 @@ func TestAppEnv(t *testing.T) {
 			appEnv: "env-name",
 			expEnv: "env-name",
 		},
+		{
+			name:   "test env AppEnv default",
+			appEnv: "",
+			expEnv: DefaultEnv,
+		},
 	}
 
 	for _, tt := range tests {

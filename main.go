@@ -10,13 +10,15 @@ import (
 	"github.com/anditakaesar/uwa-back/env"
 	"github.com/anditakaesar/uwa-back/log"
 	"github.com/anditakaesar/uwa-back/router"
+	"github.com/unrolled/render"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	logger := log.New()
 	appContext := application.Context{
-		Log: &logger,
+		Log:    &logger,
+		Render: render.New(),
 	}
 	logger.Info("=====Building Routes=====")
 	r := router.NewRouter(appContext)

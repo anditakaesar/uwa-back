@@ -42,3 +42,7 @@ func AppEnv() string {
 	}
 	return DefaultEnv
 }
+
+func AppToken() string {
+	return os.Getenv("AppToken")
+}

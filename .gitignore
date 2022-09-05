@@ -21,3 +21,6 @@
 # http test REST
 http/
 *.http
+
+# golang debug
+__debug_bin

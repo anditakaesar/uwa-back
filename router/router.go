@@ -1,14 +1,13 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/anditakaesar/uwa-back/application"
+	"github.com/anditakaesar/uwa-back/common"
 	"github.com/anditakaesar/uwa-back/env"
 	"github.com/anditakaesar/uwa-back/handler"
-	"github.com/anditakaesar/uwa-back/log"
 	"github.com/gorilla/mux"
 )
 
@@ -21,11 +20,11 @@ type Route struct {
 	PathPrefix  string
 	Method      string
 	Pattern     string
-	HandlerFunc http.HandlerFunc
+	Handler     common.EndpointHandlerJSON
 	Middlewares []Middleware
 }
 
-type Middleware func(http.Handler) http.Handler
+type Middleware func(http.Handler, application.Context) http.Handler
 
 func NewRouter(appContext application.Context) *mux.Router {
 	router := mux.NewRouter()
@@ -35,7 +34,7 @@ func NewRouter(appContext application.Context) *mux.Router {
 
 		subRouter.Methods(route.Method).
 			Path(route.Pattern).
-			Handler(chainMiddlewares(route.HandlerFunc, route.Middlewares...))
+			Handler(chainMiddlewares(route.Handler, appContext, route.Middlewares...))
 	}
 
 	return router
@@ -54,19 +53,15 @@ func InitIndexRouter(appContext application.Context) []Route {
 			PathPrefix:  indexPrefix,
 			Method:      http.MethodGet,
 			Pattern:     "/",
-			HandlerFunc: handler.Index(appContext),
-			Middlewares: []Middleware{
-				loggingMiddleware,
-			},
+			Handler:     handler.Index(appContext),
+			Middlewares: []Middleware{},
 		},
 		{
 			PathPrefix:  indexPrefix,
 			Method:      http.MethodGet,
 			Pattern:     "/greet/{name}",
-			HandlerFunc: handler.GetGreetName(appContext),
-			Middlewares: []Middleware{
-				loggingMiddleware,
-			},
+			Handler:     handler.GetGreetName(appContext),
+			Middlewares: []Middleware{},
 		},
 	}
 }
@@ -74,38 +69,27 @@ func InitIndexRouter(appContext application.Context) []Route {
 func InitApiAuthRouter(appContext application.Context) []Route {
 	return []Route{
 		{
-			PathPrefix:  apiPrefix,
-			Method:      http.MethodGet,
-			Pattern:     "/auth",
-			HandlerFunc: handler.GetAuth(appContext),
+			PathPrefix: apiPrefix,
+			Method:     http.MethodGet,
+			Pattern:    "/auth",
+			Handler:    handler.GetAuth(appContext),
 			Middlewares: []Middleware{
-				loggingMiddleware,
 				appTokenMiddleware,
 			},
 		},
 		{
-			PathPrefix:  apiPrefix,
-			Method:      http.MethodPost,
-			Pattern:     "/auth",
-			HandlerFunc: handler.PostAuth(appContext),
+			PathPrefix: apiPrefix,
+			Method:     http.MethodPost,
+			Pattern:    "/auth",
+			Handler:    handler.PostAuth(appContext),
 			Middlewares: []Middleware{
-				loggingMiddleware,
 				appTokenMiddleware,
 			},
 		},
 	}
 }
 
-func loggingMiddleware(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger := log.New()
-		logger.Info(fmt.Sprintf("%s %s", r.Method, r.URL))
-
-		h.ServeHTTP(w, r)
-	})
-}
-
-func appTokenMiddleware(h http.Handler) http.Handler {
+func appTokenMiddleware(h http.Handler, appCtx application.Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqToken := r.Header.Get("Authorization")
 		splitToken := strings.Split(reqToken, "Bearer ")
@@ -114,14 +98,15 @@ func appTokenMiddleware(h http.Handler) http.Handler {
 		if reqToken != "" && reqToken == env.AppToken() {
 			h.ServeHTTP(w, r)
 		} else {
+			appCtx.Log.Warn("Login attempt!")
 			http.Error(w, "Forbidden", http.StatusForbidden)
 		}
 	})
 }
 
-func chainMiddlewares(h http.Handler, middlewares ...Middleware) http.Handler {
+func chainMiddlewares(h http.Handler, appContext application.Context, middlewares ...Middleware) http.Handler {
 	for _, middleware := range middlewares {
-		h = middleware(h)
+		h = middleware(h, appContext)
 	}
 	return h
 }

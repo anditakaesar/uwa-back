@@ -1,11 +1,9 @@
 package application
 
 import (
-	"github.com/anditakaesar/uwa-back/log"
-	"github.com/unrolled/render"
+	"go.uber.org/zap"
 )
 
 type Context struct {
-	Log    log.Interface
-	Render *render.Render
+	Log *zap.Logger
 }

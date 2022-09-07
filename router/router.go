@@ -86,6 +86,15 @@ func InitApiAuthRouter(appContext application.Context) []Route {
 				appTokenMiddleware,
 			},
 		},
+		{
+			PathPrefix: apiPrefix,
+			Method:     http.MethodGet,
+			Pattern:    "/hash/{pass}",
+			Handler:    handler.GetHashString(appContext),
+			Middlewares: []Middleware{
+				appTokenMiddleware,
+			},
+		},
 	}
 }
 

@@ -16,7 +16,8 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	logger := log.BuildLogger()
 	appContext := application.Context{
-		Log: logger,
+		Log:     logger,
+		Crypter: application.BuildCustomCrypter(),
 	}
 	logger.Info("=====Building Routes=====")
 	r := router.NewRouter(appContext)

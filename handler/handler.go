@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/anditakaesar/uwa-back/application"
 	"github.com/anditakaesar/uwa-back/common"
+	"github.com/anditakaesar/uwa-back/services"
 	"github.com/gorilla/mux"
 )
 
@@ -43,6 +45,18 @@ func GetAuth(appContext application.Context) common.EndpointHandlerJSON {
 
 func PostAuth(appContext application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
+		request := services.AuthParam{}
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&request)
+		if err != nil {
+			return res.SetWithStatus(http.StatusInternalServerError, map[string]string{"message": "error decoder"})
+		}
+
+		err = services.AuthUser(appContext, request)
+		if err != nil {
+			return res.SetWithStatus(http.StatusUnauthorized, map[string]string{"message": err.Error()})
+		}
+
 		return res.SetOK(map[string]string{"message": "Post Auth Api"})
 	}
 }
@@ -52,5 +66,13 @@ func GetGreetName(appContext application.Context) common.EndpointHandlerJSON {
 		name := mux.Vars(r)["name"]
 
 		return res.SetOK(map[string]string{"name": name})
+	}
+}
+
+func GetHashString(appContext application.Context) common.EndpointHandlerJSON {
+	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
+		pass := mux.Vars(r)["pass"]
+
+		return res.SetOK(map[string]string{"pass": pass, "hash": appContext.Crypter.GenerateHash(pass)})
 	}
 }

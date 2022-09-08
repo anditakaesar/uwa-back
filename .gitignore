@@ -24,3 +24,6 @@ http/
 
 # golang debug
 __debug_bin
+
+# db file
+*.db

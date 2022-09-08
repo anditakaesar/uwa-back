@@ -6,11 +6,13 @@ import (
 	"hash"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type Context struct {
 	Log     *zap.Logger
 	Crypter Crypter
+	DB      *gorm.DB
 }
 
 type Crypter interface {

@@ -76,3 +76,25 @@ func GetHashString(appContext application.Context) common.EndpointHandlerJSON {
 		return res.SetOK(map[string]string{"pass": pass, "hash": appContext.Crypter.GenerateHash(pass)})
 	}
 }
+
+func MigrateAll(appContext application.Context) common.EndpointHandlerJSON {
+	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
+		err := services.AutoMigrate(appContext)
+		if err != nil {
+			return res.SetInternalError(err)
+		}
+
+		return res.SetOKWithSuccessMessage()
+	}
+}
+
+func SeedAll(appContext application.Context) common.EndpointHandlerJSON {
+	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
+		err := services.SeedUser(appContext)
+		if err != nil {
+			return res.SetInternalError(err)
+		}
+
+		return res.SetOKWithSuccessMessage()
+	}
+}

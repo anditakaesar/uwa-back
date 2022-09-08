@@ -95,6 +95,24 @@ func InitApiAuthRouter(appContext application.Context) []Route {
 				appTokenMiddleware,
 			},
 		},
+		{
+			PathPrefix: apiPrefix,
+			Method:     http.MethodPost,
+			Pattern:    "/tools/migrate/all",
+			Handler:    handler.MigrateAll(appContext),
+			Middlewares: []Middleware{
+				appTokenMiddleware,
+			},
+		},
+		{
+			PathPrefix: apiPrefix,
+			Method:     http.MethodPost,
+			Pattern:    "/tools/seed/all",
+			Handler:    handler.SeedAll(appContext),
+			Middlewares: []Middleware{
+				appTokenMiddleware,
+			},
+		},
 	}
 }
 

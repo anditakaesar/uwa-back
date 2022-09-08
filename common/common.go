@@ -50,6 +50,16 @@ func (res *CommonResponseJSON) SetOK(data interface{}) CommonResponseJSON {
 	}
 }
 
+func (res *CommonResponseJSON) SetOKWithSuccessMessage() CommonResponseJSON {
+	return CommonResponseJSON{
+		err:     nil,
+		data:    map[string]string{"message": "success"},
+		message: "",
+		errCode: 0,
+		status:  http.StatusOK,
+	}
+}
+
 func (res *CommonResponseJSON) SetWithStatus(httpStatus int, data interface{}) CommonResponseJSON {
 	return CommonResponseJSON{
 		err:     nil,
@@ -57,6 +67,16 @@ func (res *CommonResponseJSON) SetWithStatus(httpStatus int, data interface{}) C
 		message: "",
 		errCode: 0,
 		status:  httpStatus,
+	}
+}
+
+func (res *CommonResponseJSON) SetInternalError(err error) CommonResponseJSON {
+	return CommonResponseJSON{
+		err:     err,
+		data:    nil,
+		message: err.Error(),
+		errCode: 0,
+		status:  http.StatusInternalServerError,
 	}
 }
 

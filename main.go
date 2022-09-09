@@ -18,7 +18,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	logger := log.BuildLogger()
 
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(env.SqliteDBName()), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect db")
 	}

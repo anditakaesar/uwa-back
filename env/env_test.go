@@ -96,3 +96,56 @@ func TestAppEnv(t *testing.T) {
 		})
 	}
 }
+
+func TestSqliteDBName(t *testing.T) {
+	tests := []struct {
+		name      string
+		dbNameEnv string
+		expEnv    string
+	}{
+		{
+			name:      "test env SqliteDBName success",
+			dbNameEnv: "somename.db",
+			expEnv:    "somename.db",
+		},
+		{
+			name:      "test env SqliteDBName default",
+			dbNameEnv: "",
+			expEnv:    DefaultSqliteDBName,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			os.Setenv("SqliteDBName", tt.dbNameEnv)
+			got := SqliteDBName()
+			if got != tt.expEnv {
+				t.Errorf("SqliteDBName() want: %s, got: %s", tt.expEnv, got)
+			}
+		})
+	}
+}
+
+func TestAppToken(t *testing.T) {
+	tests := []struct {
+		name        string
+		appTokenEnv string
+		expEnv      string
+	}{
+		{
+			name:        "test env AppToken success",
+			appTokenEnv: "some-token",
+			expEnv:      "some-token",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			os.Setenv("AppToken", tt.appTokenEnv)
+			got := AppToken()
+			if got != tt.expEnv {
+				t.Errorf("AppToken() want: %s, got: %s", tt.expEnv, got)
+			}
+		})
+	}
+}

@@ -7,9 +7,10 @@ import (
 )
 
 const (
-	DefaultPort    = ":5000"
-	DefaultAppName = "AppName Unset"
-	DefaultEnv     = "development"
+	DefaultPort         = ":5000"
+	DefaultAppName      = "AppName Unset"
+	DefaultEnv          = "development"
+	DefaultSqliteDBName = "test.db"
 )
 
 const (
@@ -45,4 +46,13 @@ func AppEnv() string {
 
 func AppToken() string {
 	return os.Getenv("AppToken")
+}
+
+func SqliteDBName() string {
+	dbname := os.Getenv("SqliteDBName")
+	if dbname == "" {
+		return DefaultSqliteDBName
+	}
+
+	return dbname
 }

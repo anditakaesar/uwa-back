@@ -88,9 +88,13 @@ func MigrateAll(appContext application.Context) common.EndpointHandlerJSON {
 	}
 }
 
-func SeedAll(appContext application.Context) common.EndpointHandlerJSON {
+func SeedOne(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		err := services.SeedUser(appContext)
+		table := mux.Vars(r)["table"]
+		if table == "" {
+			return res.SetWithStatus(http.StatusBadRequest, map[string]string{"message": "table name required"})
+		}
+		err := services.Seed(appCtx, table)
 		if err != nil {
 			return res.SetInternalError(err)
 		}

@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/anditakaesar/uwa-back/application"
 	"github.com/anditakaesar/uwa-back/domain"
@@ -13,15 +14,37 @@ const (
 )
 
 type User domain.User
+type Role domain.Role
 
 func AutoMigrate(appCtx application.Context) error {
-	// user table
-	err := appCtx.DB.AutoMigrate(&User{})
-	if err != nil {
-		appCtx.Log.Fatal(fmt.Sprintf(errorAutoMigrateModel, "User", err))
-		return err
+	tableDomains := []interface{}{
+		&User{}, &Role{},
 	}
 
+	for _, domain := range tableDomains {
+		err := appCtx.DB.AutoMigrate(domain)
+		if err != nil {
+			appCtx.Log.Fatal(fmt.Sprintf(errorAutoMigrateModel, reflect.TypeOf(domain), err))
+			return err
+		}
+	}
+
+	return nil
+}
+
+type SeedFunc func(appCtx application.Context) error
+
+func Seed(appCtx application.Context, table string) error {
+	availableSeeds := map[string]SeedFunc{
+		"user": SeedUser,
+		"role": SeedRole,
+	}
+
+	if fn, ok := availableSeeds[table]; ok {
+		return fn(appCtx)
+	}
+
+	appCtx.Log.Warn(fmt.Sprintf("[services][Seed] seed attempt using table name:%s", table))
 	return nil
 }
 
@@ -42,6 +65,29 @@ func SeedUser(appCtx application.Context) error {
 		appCtx.DB.First(&user, "username = ?", u.Username)
 		if funk.IsEmpty(user) && user.Username != u.Username {
 			appCtx.DB.Create(&u)
+		}
+	}
+
+	return nil
+}
+
+func SeedRole(appCtx application.Context) error {
+	var role Role
+	roles := []Role{
+		{
+			Name:        "admin",
+			Description: "main admin that can access all",
+		},
+		{
+			Name:        "editor",
+			Description: "main editor that can only access articles",
+		},
+	}
+
+	for _, r := range roles {
+		appCtx.DB.First(&role, "name = ?", r.Name)
+		if funk.IsEmpty(role) && role.Name != r.Name {
+			appCtx.DB.Create(&r)
 		}
 	}
 

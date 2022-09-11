@@ -107,8 +107,8 @@ func InitApiAuthRouter(appContext application.Context) []Route {
 		{
 			PathPrefix: apiPrefix,
 			Method:     http.MethodPost,
-			Pattern:    "/tools/seed/all",
-			Handler:    handler.SeedAll(appContext),
+			Pattern:    "/tools/seed/{table}",
+			Handler:    handler.SeedOne(appContext),
 			Middlewares: []Middleware{
 				appTokenMiddleware,
 			},

@@ -16,6 +16,7 @@ import (
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
+	now := time.Now()
 	logger := log.BuildLogger()
 
 	db, err := gorm.Open(sqlite.Open(env.SqliteDBName()), &gorm.Config{})
@@ -27,6 +28,7 @@ func main() {
 		Log:     logger,
 		Crypter: application.BuildCustomCrypter(),
 		DB:      db,
+		TimeNow: &now,
 	}
 	logger.Info("=====Building Routes=====")
 	r := router.NewRouter(appContext)

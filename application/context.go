@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"hash"
+	"time"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ type Context struct {
 	Log     *zap.Logger
 	Crypter Crypter
 	DB      *gorm.DB
+	TimeNow *time.Time
 }
 
 type Crypter interface {

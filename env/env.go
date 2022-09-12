@@ -3,14 +3,16 @@ package env
 import (
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 const (
-	DefaultPort         = ":5000"
-	DefaultAppName      = "AppName Unset"
-	DefaultEnv          = "development"
-	DefaultSqliteDBName = "test.db"
+	DefaultPort            = ":5000"
+	DefaultAppName         = "AppName Unset"
+	DefaultEnv             = "development"
+	DefaultSqliteDBName    = "test.db"
+	DefaultUserTokenLength = "128"
 )
 
 const (
@@ -55,4 +57,15 @@ func SqliteDBName() string {
 	}
 
 	return dbname
+}
+
+func UserTokenLength() int {
+	lengthStr := os.Getenv("UserTokenLength")
+	if valid, _ := regexp.MatchString(`\d{4}`, lengthStr); valid {
+		userTokenLength, _ := strconv.Atoi(lengthStr)
+		return userTokenLength
+	}
+
+	userTokenLength, _ := strconv.Atoi(DefaultUserTokenLength)
+	return userTokenLength
 }

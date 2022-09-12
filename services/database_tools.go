@@ -13,12 +13,13 @@ const (
 	errorAutoMigrateModel = "[services][AutoMigrate] error on models %s, err: %v"
 )
 
-type User domain.User
-type Role domain.Role
-
 func AutoMigrate(appCtx application.Context) error {
+	var user domain.User
+	var role domain.Role
+	var userRole domain.UserRole
+	var userCredential domain.UserCredential
 	tableDomains := []interface{}{
-		&User{}, &Role{},
+		&user, &role, &userRole, &userCredential,
 	}
 
 	for _, domain := range tableDomains {
@@ -36,8 +37,9 @@ type SeedFunc func(appCtx application.Context) error
 
 func Seed(appCtx application.Context, table string) error {
 	availableSeeds := map[string]SeedFunc{
-		"user": SeedUser,
-		"role": SeedRole,
+		"user":     SeedUser,
+		"role":     SeedRole,
+		"userrole": SeedUserRole,
 	}
 
 	if fn, ok := availableSeeds[table]; ok {
@@ -49,8 +51,8 @@ func Seed(appCtx application.Context, table string) error {
 }
 
 func SeedUser(appCtx application.Context) error {
-	var user User
-	users := []User{
+	var user domain.User
+	users := []domain.User{
 		{
 			Username: "anditakaesar",
 			Password: "42a9798b99d4afcec9995e47a1d246b98ebc96be7a732323eee39d924006ee1d",
@@ -72,8 +74,8 @@ func SeedUser(appCtx application.Context) error {
 }
 
 func SeedRole(appCtx application.Context) error {
-	var role Role
-	roles := []Role{
+	var role domain.Role
+	roles := []domain.Role{
 		{
 			Name:        "admin",
 			Description: "main admin that can access all",
@@ -90,6 +92,21 @@ func SeedRole(appCtx application.Context) error {
 			appCtx.DB.Create(&r)
 		}
 	}
+
+	return nil
+}
+
+func SeedUserRole(appCtx application.Context) error {
+	var role1 domain.Role
+	var user1 domain.User
+	var userRole1 domain.UserRole
+	appCtx.DB.First(&user1, "username = ?", "anditakaesar")
+	appCtx.DB.First(&role1, "name = ?", "admin")
+
+	userRole1.User = user1
+	userRole1.Role = role1
+
+	appCtx.DB.FirstOrCreate(&userRole1)
 
 	return nil
 }

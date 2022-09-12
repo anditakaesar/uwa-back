@@ -52,12 +52,12 @@ func PostAuth(appContext application.Context) common.EndpointHandlerJSON {
 			return res.SetWithStatus(http.StatusInternalServerError, map[string]string{"message": "error decoder"})
 		}
 
-		err = services.AuthUser(appContext, request)
+		userToken, err := services.AuthUser(appContext, request)
 		if err != nil {
 			return res.SetWithStatus(http.StatusUnauthorized, map[string]string{"message": err.Error()})
 		}
 
-		return res.SetOK(map[string]string{"message": "Post Auth Api"})
+		return res.SetOK(map[string]string{"message": "Post Auth Api", "token": userToken})
 	}
 }
 

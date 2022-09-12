@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -26,53 +27,54 @@ type Route struct {
 
 type Middleware func(http.Handler, application.Context) http.Handler
 
-func NewRouter(appContext application.Context) *mux.Router {
+func NewRouter(appCtx application.Context) *mux.Router {
 	router := mux.NewRouter()
-	routes := registerRoutes(appContext)
+	routes := registerRoutes(appCtx)
 	for _, route := range *routes {
 		subRouter := router.PathPrefix(route.PathPrefix).Subrouter()
 
 		subRouter.Methods(route.Method).
 			Path(route.Pattern).
-			Handler(chainMiddlewares(route.Handler, appContext, route.Middlewares...))
+			Handler(chainMiddlewares(route.Handler, appCtx, route.Middlewares...))
 	}
 
 	return router
 }
 
-func registerRoutes(appContext application.Context) *[]Route {
+func registerRoutes(appCtx application.Context) *[]Route {
 	r := []Route{}
-	r = append(r, InitIndexRouter(appContext)...)
-	r = append(r, InitApiAuthRouter(appContext)...)
+	r = append(r, InitIndexRouter(appCtx)...)
+	r = append(r, InitApiAuthRouter(appCtx)...)
+	r = append(r, InitUserRouter(appCtx)...)
 	return &r
 }
 
-func InitIndexRouter(appContext application.Context) []Route {
+func InitIndexRouter(appCtx application.Context) []Route {
 	return []Route{
 		{
 			PathPrefix:  indexPrefix,
 			Method:      http.MethodGet,
 			Pattern:     "/",
-			Handler:     handler.Index(appContext),
+			Handler:     handler.Index(appCtx),
 			Middlewares: []Middleware{},
 		},
 		{
 			PathPrefix:  indexPrefix,
 			Method:      http.MethodGet,
 			Pattern:     "/greet/{name}",
-			Handler:     handler.GetGreetName(appContext),
+			Handler:     handler.GetGreetName(appCtx),
 			Middlewares: []Middleware{},
 		},
 	}
 }
 
-func InitApiAuthRouter(appContext application.Context) []Route {
+func InitApiAuthRouter(appCtx application.Context) []Route {
 	return []Route{
 		{
 			PathPrefix: apiPrefix,
 			Method:     http.MethodGet,
 			Pattern:    "/auth",
-			Handler:    handler.GetAuth(appContext),
+			Handler:    handler.GetAuth(appCtx),
 			Middlewares: []Middleware{
 				appTokenMiddleware,
 			},
@@ -81,7 +83,7 @@ func InitApiAuthRouter(appContext application.Context) []Route {
 			PathPrefix: apiPrefix,
 			Method:     http.MethodPost,
 			Pattern:    "/auth",
-			Handler:    handler.PostAuth(appContext),
+			Handler:    handler.PostAuth(appCtx),
 			Middlewares: []Middleware{
 				appTokenMiddleware,
 			},
@@ -90,7 +92,7 @@ func InitApiAuthRouter(appContext application.Context) []Route {
 			PathPrefix: apiPrefix,
 			Method:     http.MethodGet,
 			Pattern:    "/hash/{pass}",
-			Handler:    handler.GetHashString(appContext),
+			Handler:    handler.GetHashString(appCtx),
 			Middlewares: []Middleware{
 				appTokenMiddleware,
 			},
@@ -99,7 +101,7 @@ func InitApiAuthRouter(appContext application.Context) []Route {
 			PathPrefix: apiPrefix,
 			Method:     http.MethodPost,
 			Pattern:    "/tools/migrate/all",
-			Handler:    handler.MigrateAll(appContext),
+			Handler:    handler.MigrateAll(appCtx),
 			Middlewares: []Middleware{
 				appTokenMiddleware,
 			},
@@ -108,7 +110,7 @@ func InitApiAuthRouter(appContext application.Context) []Route {
 			PathPrefix: apiPrefix,
 			Method:     http.MethodPost,
 			Pattern:    "/tools/seed/{table}",
-			Handler:    handler.SeedOne(appContext),
+			Handler:    handler.SeedOne(appCtx),
 			Middlewares: []Middleware{
 				appTokenMiddleware,
 			},
@@ -125,15 +127,15 @@ func appTokenMiddleware(h http.Handler, appCtx application.Context) http.Handler
 		if reqToken != "" && reqToken == env.AppToken() {
 			h.ServeHTTP(w, r)
 		} else {
-			appCtx.Log.Warn("Login attempt!")
+			appCtx.Log.Warn(fmt.Sprintf("Login attempt! with token:%v", reqToken))
 			http.Error(w, "Forbidden", http.StatusForbidden)
 		}
 	})
 }
 
-func chainMiddlewares(h http.Handler, appContext application.Context, middlewares ...Middleware) http.Handler {
+func chainMiddlewares(h http.Handler, appCtx application.Context, middlewares ...Middleware) http.Handler {
 	for _, middleware := range middlewares {
-		h = middleware(h, appContext)
+		h = middleware(h, appCtx)
 	}
 	return h
 }

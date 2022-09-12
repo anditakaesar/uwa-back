@@ -80,6 +80,16 @@ func (res *CommonResponseJSON) SetInternalError(err error) CommonResponseJSON {
 	}
 }
 
+func (res *CommonResponseJSON) SetBadRequest(err error) CommonResponseJSON {
+	return CommonResponseJSON{
+		err:     err,
+		data:    nil,
+		message: err.Error(),
+		errCode: 0,
+		status:  http.StatusBadRequest,
+	}
+}
+
 type EndpointHandlerJSON func(http.ResponseWriter, *http.Request) CommonResponseJSON
 
 func (fn EndpointHandlerJSON) ServeHTTP(w http.ResponseWriter, r *http.Request) {

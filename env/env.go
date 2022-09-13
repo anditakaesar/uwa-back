@@ -13,6 +13,7 @@ const (
 	DefaultEnv             = "development"
 	DefaultSqliteDBName    = "test.db"
 	DefaultUserTokenLength = "128"
+	DefaultLogFilePath     = "default.log"
 )
 
 const (
@@ -68,4 +69,13 @@ func UserTokenLength() int {
 
 	userTokenLength, _ := strconv.Atoi(DefaultUserTokenLength)
 	return userTokenLength
+}
+
+func LogFilePath() string {
+	logPath := os.Getenv("LogFilePath")
+	if logPath == "" {
+		return DefaultLogFilePath
+	}
+
+	return logPath
 }

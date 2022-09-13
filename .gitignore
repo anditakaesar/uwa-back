@@ -27,3 +27,6 @@ __debug_bin
 
 # db file
 *.db
+
+# log files
+*.log

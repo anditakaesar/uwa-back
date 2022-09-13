@@ -2,6 +2,7 @@ package env
 
 import (
 	"os"
+	"strconv"
 	"testing"
 )
 
@@ -127,24 +128,75 @@ func TestSqliteDBName(t *testing.T) {
 }
 
 func TestAppToken(t *testing.T) {
+	t.Run("test env AppToken success", func(t *testing.T) {
+		os.Setenv("AppToken", "some-token")
+		got := AppToken()
+		if got != "some-token" {
+			t.Errorf("AppToken() want: %s, got: %s", "some-token", got)
+		}
+	})
+
+}
+
+func TestUserTokenLength(t *testing.T) {
 	tests := []struct {
-		name        string
-		appTokenEnv string
-		expEnv      string
+		name   string
+		envStr string
+		expEnv string
 	}{
 		{
-			name:        "test env AppToken success",
-			appTokenEnv: "some-token",
-			expEnv:      "some-token",
+			name:   "test env UserTokenLength success",
+			envStr: "128",
+			expEnv: "128",
+		},
+		{
+			name:   "test env UserTokenLength 4 digit success",
+			envStr: "1289",
+			expEnv: "1289",
+		},
+		{
+			name:   "test env UserTokenLength default",
+			envStr: "",
+			expEnv: DefaultUserTokenLength,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			os.Setenv("AppToken", tt.appTokenEnv)
-			got := AppToken()
+			os.Setenv("UserTokenLength", tt.envStr)
+			got := UserTokenLength()
+			expEnvInt, _ := strconv.Atoi(tt.expEnv)
+			if got != expEnvInt {
+				t.Errorf("UserTokenLength() want: %d, got: %d", expEnvInt, got)
+			}
+		})
+	}
+}
+
+func TestLogFilePath(t *testing.T) {
+	tests := []struct {
+		name   string
+		envStr string
+		expEnv string
+	}{
+		{
+			name:   "test env LogFilePath success",
+			envStr: "somelog.log",
+			expEnv: "somelog.log",
+		},
+		{
+			name:   "test env LogFilePath default",
+			envStr: "",
+			expEnv: DefaultLogFilePath,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			os.Setenv("LogFilePath", tt.envStr)
+			got := LogFilePath()
 			if got != tt.expEnv {
-				t.Errorf("AppToken() want: %s, got: %s", tt.expEnv, got)
+				t.Errorf("LogFilePath() want: %s, got: %s", tt.expEnv, got)
 			}
 		})
 	}

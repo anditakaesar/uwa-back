@@ -9,6 +9,7 @@ import (
 	"github.com/anditakaesar/uwa-back/common"
 	"github.com/anditakaesar/uwa-back/env"
 	"github.com/anditakaesar/uwa-back/handler"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -32,6 +33,10 @@ func NewRouter(appCtx application.Context) *mux.Router {
 	routes := registerRoutes(appCtx)
 	for _, route := range *routes {
 		subRouter := router.PathPrefix(route.PathPrefix).Subrouter()
+
+		subRouter.Methods(http.MethodOptions).
+			Path(route.Pattern).
+			Handler(chainCORSMiddleware(subRouter.NotFoundHandler, appCtx))
 
 		subRouter.Methods(route.Method).
 			Path(route.Pattern).
@@ -138,6 +143,17 @@ func appTokenMiddleware(h http.Handler, appCtx application.Context) http.Handler
 		} else {
 			appCtx.Log.Warn(fmt.Sprintf("Login attempt! with token:%v", reqToken))
 			http.Error(w, "Forbidden", http.StatusForbidden)
+		}
+	})
+}
+
+func chainCORSMiddleware(h http.Handler, appCtx application.Context) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			appCtx.Log.Info(fmt.Sprintf("[route][chainCORSMiddleware] preflight detected: %s %s", r.Method, r.URL))
+			handlers.CORS()(h).ServeHTTP(w, r)
+		} else {
+			h.ServeHTTP(w, r)
 		}
 	})
 }

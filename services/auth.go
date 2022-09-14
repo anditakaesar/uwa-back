@@ -45,7 +45,7 @@ func AuthUser(appCtx application.Context, authParam AuthParam) (string, error) {
 	userCredential.UserToken = userToken
 	expiredAt := appCtx.TimeNow.Add(24 * time.Hour)
 	userCredential.ExpiredAt = &expiredAt
-	appCtx.DB.FirstOrCreate(&userCredential)
+	appCtx.DB.FirstOrCreate(&userCredential, "expired_at >= ?", appCtx.TimeNow)
 
 	return userCredential.UserToken, nil
 }

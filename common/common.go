@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/anditakaesar/uwa-back/log"
 	"github.com/unrolled/render"
@@ -109,4 +110,15 @@ func (fn EndpointHandlerJSON) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	} else {
 		commonRender.JSON(w, res.status, res.data)
 	}
+}
+
+func GetBearerToken(r *http.Request) string {
+	userToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(userToken, "Bearer ")
+
+	if len(splitToken) > 1 {
+		return splitToken[1]
+	}
+
+	return ""
 }

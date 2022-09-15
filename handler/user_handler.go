@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -30,7 +31,10 @@ func GetUserTokenExpiry(appCtx application.Context) common.EndpointHandlerJSON {
 		var userCredential domain.UserCredential
 		appCtx.DB.First(&userCredential, "user_token = ?", userToken)
 
+		isExpired := !userCredential.ExpiredAt.After(*appCtx.TimeNow)
+
 		result := map[string]string{
+			"isExpired": fmt.Sprint(isExpired),
 			"expiredAt": userCredential.ExpiredAt.UTC().Format(time.RFC3339),
 		}
 

@@ -19,7 +19,7 @@ func GetUsers(appCtx application.Context) common.EndpointHandlerJSON {
 			return res.SetBadRequest(err)
 		}
 
-		result := services.GetAllUsers(appCtx, requestParam)
+		result := appCtx.Services.UserService.GetAllUsers(requestParam)
 
 		return res.SetOK(result)
 	}

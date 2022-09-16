@@ -52,7 +52,9 @@ func PostAuth(appContext application.Context) common.EndpointHandlerJSON {
 			return res.SetWithStatus(http.StatusInternalServerError, map[string]string{"message": "error decoder"})
 		}
 
-		userToken, err := services.AuthUser(appContext, request)
+		authService := appContext.Services.AuthService
+
+		userToken, err := authService.AuthUser(request)
 		if err != nil {
 			return res.SetWithStatus(http.StatusUnauthorized, map[string]string{"message": err.Error()})
 		}
@@ -61,7 +63,7 @@ func PostAuth(appContext application.Context) common.EndpointHandlerJSON {
 	}
 }
 
-func GetGreetName(appContext application.Context) common.EndpointHandlerJSON {
+func GetGreetName(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
 		name := mux.Vars(r)["name"]
 
@@ -69,17 +71,17 @@ func GetGreetName(appContext application.Context) common.EndpointHandlerJSON {
 	}
 }
 
-func GetHashString(appContext application.Context) common.EndpointHandlerJSON {
+func GetHashString(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
 		pass := mux.Vars(r)["pass"]
 
-		return res.SetOK(map[string]string{"pass": pass, "hash": appContext.Crypter.GenerateHash(pass)})
+		return res.SetOK(map[string]string{"pass": pass, "hash": appCtx.Crypter.GenerateHash(pass)})
 	}
 }
 
-func MigrateAll(appContext application.Context) common.EndpointHandlerJSON {
+func MigrateAll(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		err := services.AutoMigrate(appContext)
+		err := appCtx.Services.DBToolsService.AutoMigrate()
 		if err != nil {
 			return res.SetInternalError(err)
 		}
@@ -94,7 +96,7 @@ func SeedOne(appCtx application.Context) common.EndpointHandlerJSON {
 		if table == "" {
 			return res.SetWithStatus(http.StatusBadRequest, map[string]string{"message": "table name required"})
 		}
-		err := services.Seed(appCtx, table)
+		err := appCtx.Services.DBToolsService.Seed(table)
 		if err != nil {
 			return res.SetInternalError(err)
 		}

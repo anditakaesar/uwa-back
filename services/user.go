@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/anditakaesar/uwa-back/application"
 	"github.com/anditakaesar/uwa-back/domain"
 )
 
@@ -14,6 +13,20 @@ const (
 	DefaultPageSize    = 10
 	DefaultCurrentPage = 1
 )
+
+type UserServiceInterface interface {
+	GetAllUsers(param GetAllUsersRequest) *GetAllUsersResponse
+}
+
+type UserService struct {
+	Ctx *Context
+}
+
+func NewUserService(ctx *Context) UserServiceInterface {
+	return &UserService{
+		Ctx: ctx,
+	}
+}
 
 type GetAllUsersResponse struct {
 	List []UserResponse `json:"list"`
@@ -58,16 +71,16 @@ func (param *GetAllUsersRequest) GetParamFromRequest(r *http.Request) error {
 	return nil
 }
 
-func GetAllUsers(appCtx application.Context, param GetAllUsersRequest) *GetAllUsersResponse {
+func (usvc *UserService) GetAllUsers(param GetAllUsersRequest) *GetAllUsersResponse {
 	response := GetAllUsersResponse{}
 	userReponse := []UserResponse{}
 	users := []domain.User{}
 	var count int64
-	appCtx.DB.Find(&users).
+	usvc.Ctx.DB.Find(&users).
 		Offset((param.CurrentPage - 1) * param.PageSize).
 		Limit(param.PageSize)
 
-	appCtx.DB.Model(&users).Count(&count)
+	usvc.Ctx.DB.Model(&users).Count(&count)
 
 	for _, u := range users {
 		userReponse = append(userReponse, UserResponse{

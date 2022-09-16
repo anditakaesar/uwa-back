@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/anditakaesar/uwa-back/application"
 	"github.com/anditakaesar/uwa-back/domain"
 	"github.com/thoas/go-funk"
 )
@@ -13,7 +12,22 @@ const (
 	errorAutoMigrateModel = "[services][AutoMigrate] error on models %s, err: %v"
 )
 
-func AutoMigrate(appCtx application.Context) error {
+type DBToolsServiceInterface interface {
+	AutoMigrate() error
+	Seed(table string) error
+}
+
+type DBToolsService struct {
+	Ctx *Context
+}
+
+func NewDBToolsService(ctx *Context) DBToolsServiceInterface {
+	return &DBToolsService{
+		Ctx: ctx,
+	}
+}
+
+func (dbt *DBToolsService) AutoMigrate() error {
 	var user domain.User
 	var role domain.Role
 	var userRole domain.UserRole
@@ -23,9 +37,9 @@ func AutoMigrate(appCtx application.Context) error {
 	}
 
 	for _, domain := range tableDomains {
-		err := appCtx.DB.AutoMigrate(domain)
+		err := dbt.Ctx.DB.AutoMigrate(domain)
 		if err != nil {
-			appCtx.Log.Fatal(fmt.Sprintf(errorAutoMigrateModel, reflect.TypeOf(domain), err))
+			dbt.Ctx.Log.Fatal(fmt.Sprintf(errorAutoMigrateModel, reflect.TypeOf(domain), err))
 			return err
 		}
 	}
@@ -33,9 +47,9 @@ func AutoMigrate(appCtx application.Context) error {
 	return nil
 }
 
-type SeedFunc func(appCtx application.Context) error
+type SeedFunc func(Ctx *Context) error
 
-func Seed(appCtx application.Context, table string) error {
+func (dbt *DBToolsService) Seed(table string) error {
 	availableSeeds := map[string]SeedFunc{
 		"user":     SeedUser,
 		"role":     SeedRole,
@@ -43,14 +57,14 @@ func Seed(appCtx application.Context, table string) error {
 	}
 
 	if fn, ok := availableSeeds[table]; ok {
-		return fn(appCtx)
+		return fn(dbt.Ctx)
 	}
 
-	appCtx.Log.Warn(fmt.Sprintf("[services][Seed] seed attempt using table name:%s", table))
+	dbt.Ctx.Log.Warn(fmt.Sprintf("[services][Seed] seed attempt using table name:%s", table))
 	return nil
 }
 
-func SeedUser(appCtx application.Context) error {
+func SeedUser(ctx *Context) error {
 	var user domain.User
 	users := []domain.User{
 		{
@@ -64,16 +78,16 @@ func SeedUser(appCtx application.Context) error {
 	}
 
 	for _, u := range users {
-		appCtx.DB.First(&user, "username = ?", u.Username)
+		ctx.DB.First(&user, "username = ?", u.Username)
 		if funk.IsEmpty(user) && user.Username != u.Username {
-			appCtx.DB.Create(&u)
+			ctx.DB.Create(&u)
 		}
 	}
 
 	return nil
 }
 
-func SeedRole(appCtx application.Context) error {
+func SeedRole(ctx *Context) error {
 	var role domain.Role
 	roles := []domain.Role{
 		{
@@ -87,26 +101,26 @@ func SeedRole(appCtx application.Context) error {
 	}
 
 	for _, r := range roles {
-		appCtx.DB.First(&role, "name = ?", r.Name)
+		ctx.DB.First(&role, "name = ?", r.Name)
 		if funk.IsEmpty(role) && role.Name != r.Name {
-			appCtx.DB.Create(&r)
+			ctx.DB.Create(&r)
 		}
 	}
 
 	return nil
 }
 
-func SeedUserRole(appCtx application.Context) error {
+func SeedUserRole(ctx *Context) error {
 	var role1 domain.Role
 	var user1 domain.User
 	var userRole1 domain.UserRole
-	appCtx.DB.First(&user1, "username = ?", "anditakaesar")
-	appCtx.DB.First(&role1, "name = ?", "admin")
+	ctx.DB.First(&user1, "username = ?", "anditakaesar")
+	ctx.DB.First(&role1, "name = ?", "admin")
 
 	userRole1.User = user1
 	userRole1.Role = role1
 
-	appCtx.DB.FirstOrCreate(&userRole1)
+	ctx.DB.FirstOrCreate(&userRole1)
 
 	return nil
 }

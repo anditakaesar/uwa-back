@@ -3,14 +3,14 @@ package application
 import (
 	"time"
 
+	"github.com/anditakaesar/uwa-back/log"
 	"github.com/anditakaesar/uwa-back/services"
 	"github.com/anditakaesar/uwa-back/utils"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type Context struct {
-	Log      *zap.Logger
+	Log      log.LogInterface
 	Crypter  utils.Crypter
 	DB       *gorm.DB
 	TimeNow  *time.Time

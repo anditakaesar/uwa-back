@@ -7,7 +7,6 @@ import (
 
 	"github.com/anditakaesar/uwa-back/log"
 	"github.com/unrolled/render"
-	"go.uber.org/zap"
 )
 
 type CommonResponseJSON struct {
@@ -19,7 +18,7 @@ type CommonResponseJSON struct {
 }
 
 var commonRender *render.Render = render.New()
-var commonLogger *zap.Logger = log.BuildLogger()
+var commonLogger log.LogInterface = log.BuildLogger()
 
 func (res *CommonResponseJSON) GetStatus() int {
 	return res.status

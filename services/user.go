@@ -30,7 +30,7 @@ func NewUserService(ctx *Context) UserServiceInterface {
 
 type GetAllUsersResponse struct {
 	List []UserResponse `json:"list"`
-	domain.Paging
+	*domain.Paging
 }
 
 type UserResponse struct {
@@ -74,13 +74,11 @@ func (param *GetAllUsersRequest) GetParamFromRequest(r *http.Request) error {
 func (usvc *UserService) GetAllUsers(param GetAllUsersRequest) *GetAllUsersResponse {
 	response := GetAllUsersResponse{}
 	userReponse := []UserResponse{}
-	users := []domain.User{}
-	var count int64
-	usvc.Ctx.DB.Find(&users).
-		Offset((param.CurrentPage - 1) * param.PageSize).
-		Limit(param.PageSize)
-
-	usvc.Ctx.DB.Model(&users).Count(&count)
+	paging := &domain.Paging{
+		PageSize:    param.PageSize,
+		CurrentPage: param.CurrentPage,
+	}
+	users := usvc.Ctx.DBI.GetUser(paging)
 
 	for _, u := range users {
 		userReponse = append(userReponse, UserResponse{
@@ -92,11 +90,7 @@ func (usvc *UserService) GetAllUsers(param GetAllUsersRequest) *GetAllUsersRespo
 	}
 
 	response.List = userReponse
-	response.Paging = domain.Paging{
-		Count:       uint64(count),
-		PageSize:    param.PageSize,
-		CurrentPage: param.CurrentPage,
-	}
+	response.Paging = paging
 
 	return &response
 }

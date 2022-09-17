@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"hash"
 )
@@ -32,4 +34,12 @@ func (c *CustomCrypter) GenerateHash(str string) string {
 func (c *CustomCrypter) CompareHash(hashStr string, str string) bool {
 	toCompare := c.GenerateHash(str)
 	return hashStr == toCompare
+}
+
+func GenerateSecureToken(length int) (string, error) {
+	b := make([]byte, length)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
 }

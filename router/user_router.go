@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/anditakaesar/uwa-back/application"
-	"github.com/anditakaesar/uwa-back/common"
 	"github.com/anditakaesar/uwa-back/domain"
 	"github.com/anditakaesar/uwa-back/handler"
+	"github.com/anditakaesar/uwa-back/utils"
 	"github.com/thoas/go-funk"
 )
 
@@ -27,7 +27,7 @@ func InitUserRouter(appCtx application.Context) []Route {
 
 func userTokenMiddleware(h http.Handler, appCtx application.Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userToken := common.GetBearerToken(r)
+		userToken := utils.GetBearerToken(r)
 
 		var userCredential domain.UserCredential
 		appCtx.DB.First(&userCredential, "user_token = ?", userToken)

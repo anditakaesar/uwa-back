@@ -9,6 +9,7 @@ import (
 	"github.com/anditakaesar/uwa-back/common"
 	"github.com/anditakaesar/uwa-back/domain"
 	"github.com/anditakaesar/uwa-back/services"
+	"github.com/anditakaesar/uwa-back/utils"
 )
 
 func GetUsers(appCtx application.Context) common.EndpointHandlerJSON {
@@ -27,7 +28,7 @@ func GetUsers(appCtx application.Context) common.EndpointHandlerJSON {
 
 func GetUserTokenExpiry(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		userToken := common.GetBearerToken(r)
+		userToken := utils.GetBearerToken(r)
 		var userCredential domain.UserCredential
 		appCtx.DB.First(&userCredential, "user_token = ?", userToken)
 

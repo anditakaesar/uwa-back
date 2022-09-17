@@ -7,13 +7,12 @@ import (
 	"time"
 
 	"github.com/anditakaesar/uwa-back/application"
+	"github.com/anditakaesar/uwa-back/database"
 	"github.com/anditakaesar/uwa-back/env"
 	"github.com/anditakaesar/uwa-back/log"
 	"github.com/anditakaesar/uwa-back/router"
 	"github.com/anditakaesar/uwa-back/services"
 	"github.com/anditakaesar/uwa-back/utils"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -21,24 +20,26 @@ func main() {
 	now := time.Now()
 	logger := log.BuildLogger()
 
-	db, err := gorm.Open(sqlite.Open(env.SqliteDBName()), &gorm.Config{})
+	crypter := utils.BuildCustomCrypter()
+	db := database.NewConnection()
+	err := db.Connect()
 	if err != nil {
 		panic("failed to connect db")
 	}
 
-	crypter := utils.BuildCustomCrypter()
-
 	serviceCtx := services.Context{
 		Log:     logger,
 		Crypter: crypter,
-		DB:      db,
+		DB:      db.GetConnectedDB(),
+		DBI:     db,
 		TimeNow: &now,
 	}
 
 	appContext := application.Context{
 		Log:     logger,
 		Crypter: crypter,
-		DB:      db,
+		DB:      db.GetConnectedDB(),
+		DBI:     db,
 		TimeNow: &now,
 		Services: application.Services{
 			AuthService:    services.NewAuthService(&serviceCtx),

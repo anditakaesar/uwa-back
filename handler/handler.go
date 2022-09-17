@@ -64,6 +64,14 @@ func PostAuth(appContext application.Context) common.EndpointHandlerJSON {
 	}
 }
 
+func PatchForceExpiryToken(appContext application.Context) common.EndpointHandlerJSON {
+	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
+		userToken := utils.GetBearerToken(r)
+		appContext.AuthService.RevokeAuthToken(userToken)
+		return res.SetOK(map[string]string{"message": "Token Expired", "token": userToken})
+	}
+}
+
 func GetGreetName(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
 		name := mux.Vars(r)["name"]

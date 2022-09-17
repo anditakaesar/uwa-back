@@ -18,6 +18,7 @@ type AuthParam struct {
 
 type AuthServiceInterface interface {
 	AuthUser(authParam AuthParam) (string, error)
+	RevokeAuthToken(userToken string)
 }
 
 type AuthService struct {
@@ -62,4 +63,13 @@ func (as *AuthService) AuthUser(authParam AuthParam) (string, error) {
 	userCredential = as.Ctx.DBI.GetOrCreateUserCredential(userCredential, &now)
 
 	return userCredential.UserToken, nil
+}
+
+func (as *AuthService) RevokeAuthToken(userToken string) {
+	userCredential := as.Ctx.DBI.GetUserCredentialByToken(userToken)
+	if userCredential != nil {
+		makeExpiredTime := time.Now().Add(-1 * time.Hour)
+		userCredential.ExpiredAt = &makeExpiredTime
+		as.Ctx.DBI.UpdateUserCredential(userCredential)
+	}
 }

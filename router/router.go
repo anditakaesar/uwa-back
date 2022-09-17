@@ -104,6 +104,15 @@ func InitApiAuthRouter(appCtx application.Context) []Route {
 		},
 		{
 			PathPrefix: apiPrefix,
+			Method:     http.MethodPatch,
+			Pattern:    "/auth/token/expiry",
+			Handler:    handler.PatchForceExpiryToken(appCtx),
+			Middlewares: []Middleware{
+				userTokenMiddleware,
+			},
+		},
+		{
+			PathPrefix: apiPrefix,
 			Method:     http.MethodGet,
 			Pattern:    "/hash/{pass}",
 			Handler:    handler.GetHashString(appCtx),

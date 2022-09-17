@@ -32,6 +32,7 @@ func NewAuthService(ctx *Context) AuthServiceInterface {
 
 func (as *AuthService) AuthUser(authParam AuthParam) (string, error) {
 	userCredential := &domain.UserCredential{}
+	now := time.Now()
 
 	user := as.Ctx.DBI.GetUserByUsername(authParam.Username)
 	crypter := utils.GetDefaultCrypter()
@@ -56,9 +57,9 @@ func (as *AuthService) AuthUser(authParam AuthParam) (string, error) {
 	}
 
 	userCredential.UserToken = userToken
-	expiredAt := as.Ctx.TimeNow.Add(24 * time.Hour)
+	expiredAt := now.Add(24 * time.Hour)
 	userCredential.ExpiredAt = &expiredAt
-	userCredential = as.Ctx.DBI.GetOrCreateUserCredential(userCredential, as.Ctx.TimeNow)
+	userCredential = as.Ctx.DBI.GetOrCreateUserCredential(userCredential, &now)
 
 	return userCredential.UserToken, nil
 }

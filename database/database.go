@@ -21,6 +21,15 @@ type DBInterface interface {
 	GetUserByUsername(username string) *domain.User
 	GetOrCreateUserCredential(userCredential *domain.UserCredential, timeNow *time.Time) *domain.UserCredential
 	GetUser(paging *domain.Paging) []domain.User
+	CreateUser(user *domain.User)
+
+	GetRoleByName(roleName string) *domain.Role
+	CreateRole(role *domain.Role)
+
+	CreateUserRole(userRole *domain.UserRole)
+
+	GetUserCredentialByToken(userToken string) *domain.UserCredential
+	UpdateUserCredential(userCredential *domain.UserCredential)
 }
 
 type Database struct {
@@ -53,30 +62,6 @@ func (db *Database) GetConnectedDB() *gorm.DB {
 	return db.mainDB
 }
 
-func (db *Database) GetUserByUsername(username string) *domain.User {
-	var user domain.User
-	db.mainDB.First(&user, "username = ?", username)
-	return &user
-}
-
-func (db *Database) GetOrCreateUserCredential(userCredential *domain.UserCredential, timeNow *time.Time) *domain.UserCredential {
-	db.mainDB.FirstOrCreate(userCredential, "expired_at >= ?", timeNow)
-	return userCredential
-}
-
-func (db *Database) GetUser(paging *domain.Paging) []domain.User {
-	var result []domain.User
-	query := db.mainDB.Model(result)
-
-	if paging != nil {
-		enrichQueryWithPaging(query, paging)
-	}
-
-	query.Find(&result)
-
-	return result
-}
-
 func enrichQueryWithPaging(query *gorm.DB, paging *domain.Paging) {
 	o := 0
 	p := DefaultPageSize
@@ -96,4 +81,12 @@ func enrichQueryWithPaging(query *gorm.DB, paging *domain.Paging) {
 	}
 
 	query.Offset(o).Limit(p)
+}
+
+func (db *Database) create(object interface{}) {
+	db.mainDB.Create(object)
+}
+
+func (db *Database) save(object interface{}) {
+	db.mainDB.Save(object)
 }

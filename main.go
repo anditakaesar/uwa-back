@@ -16,7 +16,6 @@ import (
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	now := time.Now()
 	logger := log.BuildLogger()
 
 	db := database.NewConnection()
@@ -26,17 +25,13 @@ func main() {
 	}
 
 	serviceCtx := services.Context{
-		Log:     logger,
-		DB:      db.GetConnectedDB(),
-		DBI:     db,
-		TimeNow: &now,
+		Log: logger,
+		DBI: db,
 	}
 
 	appContext := application.Context{
-		Log:     logger,
-		DB:      db.GetConnectedDB(),
-		DBI:     db,
-		TimeNow: &now,
+		Log: logger,
+		DBI: db,
 		Services: application.Services{
 			AuthService:    services.NewAuthService(&serviceCtx),
 			DBToolsService: services.NewDBToolsService(&serviceCtx),

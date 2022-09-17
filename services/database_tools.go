@@ -37,7 +37,7 @@ func (dbt *DBToolsService) AutoMigrate() error {
 	}
 
 	for _, domain := range tableDomains {
-		err := dbt.Ctx.DB.AutoMigrate(domain)
+		err := dbt.Ctx.DBI.GetConnectedDB().AutoMigrate(domain)
 		if err != nil {
 			dbt.Ctx.Log.Fatal(fmt.Sprintf(errorAutoMigrateModel, reflect.TypeOf(domain), err))
 			return err
@@ -65,7 +65,6 @@ func (dbt *DBToolsService) Seed(table string) error {
 }
 
 func SeedUser(ctx *Context) error {
-	var user domain.User
 	users := []domain.User{
 		{
 			Username: "anditakaesar",
@@ -78,9 +77,9 @@ func SeedUser(ctx *Context) error {
 	}
 
 	for _, u := range users {
-		ctx.DB.First(&user, "username = ?", u.Username)
+		user := ctx.DBI.GetUserByUsername(u.Username)
 		if funk.IsEmpty(user) && user.Username != u.Username {
-			ctx.DB.Create(&u)
+			ctx.DBI.CreateUser(&u)
 		}
 	}
 
@@ -88,7 +87,6 @@ func SeedUser(ctx *Context) error {
 }
 
 func SeedRole(ctx *Context) error {
-	var role domain.Role
 	roles := []domain.Role{
 		{
 			Name:        "admin",
@@ -101,9 +99,9 @@ func SeedRole(ctx *Context) error {
 	}
 
 	for _, r := range roles {
-		ctx.DB.First(&role, "name = ?", r.Name)
+		role := ctx.DBI.GetRoleByName(r.Name)
 		if funk.IsEmpty(role) && role.Name != r.Name {
-			ctx.DB.Create(&r)
+			ctx.DBI.CreateRole(&r)
 		}
 	}
 
@@ -111,16 +109,12 @@ func SeedRole(ctx *Context) error {
 }
 
 func SeedUserRole(ctx *Context) error {
-	var role1 domain.Role
-	var user1 domain.User
 	var userRole1 domain.UserRole
-	ctx.DB.First(&user1, "username = ?", "anditakaesar")
-	ctx.DB.First(&role1, "name = ?", "admin")
-
-	userRole1.User = user1
-	userRole1.Role = role1
-
-	ctx.DB.FirstOrCreate(&userRole1)
+	user1 := ctx.DBI.GetUserByUsername("anditakaesar")
+	role1 := ctx.DBI.GetRoleByName("admin")
+	userRole1.User = *user1
+	userRole1.Role = *role1
+	ctx.DBI.CreateUserRole(&userRole1)
 
 	return nil
 }

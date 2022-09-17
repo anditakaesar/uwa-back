@@ -7,7 +7,6 @@ import (
 
 	"github.com/anditakaesar/uwa-back/application"
 	"github.com/anditakaesar/uwa-back/common"
-	"github.com/anditakaesar/uwa-back/domain"
 	"github.com/anditakaesar/uwa-back/services"
 	"github.com/anditakaesar/uwa-back/utils"
 )
@@ -28,11 +27,9 @@ func GetUsers(appCtx application.Context) common.EndpointHandlerJSON {
 
 func GetUserTokenExpiry(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		userToken := utils.GetBearerToken(r)
-		var userCredential domain.UserCredential
-		appCtx.DB.First(&userCredential, "user_token = ?", userToken)
+		userCredential := appCtx.DBI.GetUserCredentialByToken(utils.GetBearerToken(r))
 
-		isExpired := !userCredential.ExpiredAt.After(*appCtx.TimeNow)
+		isExpired := !userCredential.ExpiredAt.After(time.Now())
 
 		result := map[string]string{
 			"isExpired": fmt.Sprint(isExpired),

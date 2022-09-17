@@ -7,6 +7,7 @@ import (
 	"github.com/anditakaesar/uwa-back/application"
 	"github.com/anditakaesar/uwa-back/common"
 	"github.com/anditakaesar/uwa-back/services"
+	"github.com/anditakaesar/uwa-back/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -74,8 +75,9 @@ func GetGreetName(appCtx application.Context) common.EndpointHandlerJSON {
 func GetHashString(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
 		pass := mux.Vars(r)["pass"]
+		crypter := utils.GetDefaultCrypter()
 
-		return res.SetOK(map[string]string{"pass": pass, "hash": appCtx.Crypter.GenerateHash(pass)})
+		return res.SetOK(map[string]string{"pass": pass, "hash": crypter.GenerateHash(pass)})
 	}
 }
 

@@ -12,7 +12,6 @@ import (
 	"github.com/anditakaesar/uwa-back/log"
 	"github.com/anditakaesar/uwa-back/router"
 	"github.com/anditakaesar/uwa-back/services"
-	"github.com/anditakaesar/uwa-back/utils"
 )
 
 func main() {
@@ -20,7 +19,6 @@ func main() {
 	now := time.Now()
 	logger := log.BuildLogger()
 
-	crypter := utils.BuildCustomCrypter()
 	db := database.NewConnection()
 	err := db.Connect()
 	if err != nil {
@@ -29,7 +27,6 @@ func main() {
 
 	serviceCtx := services.Context{
 		Log:     logger,
-		Crypter: crypter,
 		DB:      db.GetConnectedDB(),
 		DBI:     db,
 		TimeNow: &now,
@@ -37,7 +34,6 @@ func main() {
 
 	appContext := application.Context{
 		Log:     logger,
-		Crypter: crypter,
 		DB:      db.GetConnectedDB(),
 		DBI:     db,
 		TimeNow: &now,

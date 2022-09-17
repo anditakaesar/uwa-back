@@ -34,6 +34,7 @@ func (as *AuthService) AuthUser(authParam AuthParam) (string, error) {
 	userCredential := &domain.UserCredential{}
 
 	user := as.Ctx.DBI.GetUserByUsername(authParam.Username)
+	crypter := utils.GetDefaultCrypter()
 
 	if funk.IsEmpty(user) {
 		as.Ctx.Log.Warn(fmt.Sprintf("[Services][Auth] auth attempt with user: %s", authParam.Username))
@@ -41,7 +42,7 @@ func (as *AuthService) AuthUser(authParam AuthParam) (string, error) {
 	}
 
 	authPassHash := user.Password
-	ok := as.Ctx.Crypter.CompareHash(authPassHash, authParam.Password)
+	ok := crypter.CompareHash(authPassHash, authParam.Password)
 	if !ok {
 		as.Ctx.Log.Warn(fmt.Sprintf("[Services][Auth] auth attempt with user: %s, pass: %s", authParam.Username, authParam.Password))
 		return "", errors.New("[Services][Auth] unauthorized")

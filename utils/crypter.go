@@ -17,12 +17,11 @@ type CustomCrypter struct {
 	hasher hash.Hash
 }
 
-func BuildCustomCrypter() *CustomCrypter {
+func GetDefaultCrypter() *CustomCrypter {
 	hasher := sha256.New()
 	return &CustomCrypter{
 		hasher: hasher,
 	}
-
 }
 
 func (c *CustomCrypter) GenerateHash(str string) string {

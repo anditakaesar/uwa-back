@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"errors"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -41,11 +43,13 @@ func Test_GenerateSecureToken(t *testing.T) {
 		assert.Nil(t, gotErr)
 		assert.NotNil(t, gotVal)
 	})
+}
 
-	t.Run("test GenerateSecureToken not nil length zero success", func(t *testing.T) {
-		gotVal, gotErr := GenerateSecureToken(0)
+func Test_GenerateSecureTokenWithReader(t *testing.T) {
+	t.Run("test GenerateSecureTokenWithReader error", func(t *testing.T) {
+		errEreader := iotest.ErrReader(errors.New("some error"))
+		_, gotErr := GenerateSecureTokenWithReader(1, errEreader)
 
-		assert.Nil(t, gotErr)
-		assert.NotNil(t, gotVal)
+		assert.NotNil(t, gotErr)
 	})
 }

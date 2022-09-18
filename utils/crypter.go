@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"hash"
+	"io"
 )
 
 type Crypter interface {
@@ -36,8 +37,16 @@ func (c *CustomCrypter) CompareHash(hashStr string, str string) bool {
 }
 
 func GenerateSecureToken(length int) (string, error) {
+	return GenerateSecureTokenWithReader(length, nil)
+}
+
+func GenerateSecureTokenWithReader(length int, randObj io.Reader) (string, error) {
 	b := make([]byte, length)
-	if _, err := rand.Read(b); err != nil {
+	if randObj == nil {
+		randObj = rand.Reader
+	}
+
+	if _, err := randObj.Read(b); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(b), nil

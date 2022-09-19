@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "buildenv",
+            "command": "sed",
+            "args": ["s/export //g", "local_env.sh", ">", ".env"],
+            "type": "shell"
+        }
+    ]
+}

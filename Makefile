@@ -9,3 +9,7 @@ pre-commit:
 check-coverage:
 	@go test ./...  -coverpkg=./... -coverprofile ./coverage.out
 	@go tool cover -func ./coverage.out
+
+mockery-all:
+	@mockery --name=LogInterface --dir=log
+	@mockery --name=DBInterface --dir=database

@@ -11,6 +11,7 @@ import (
 	"github.com/anditakaesar/uwa-back/handler"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
 const (
@@ -33,6 +34,7 @@ func NewRouter(appCtx application.Context) *mux.Router {
 	routes := registerRoutes(appCtx)
 	for _, route := range *routes {
 		subRouter := router.PathPrefix(route.PathPrefix).Subrouter()
+		route.Middlewares = append(route.Middlewares, logIPMiddleware)
 
 		subRouter.Methods(http.MethodOptions).
 			Path(route.Pattern).
@@ -172,4 +174,12 @@ func chainMiddlewares(h http.Handler, appCtx application.Context, middlewares ..
 		h = middleware(h, appCtx)
 	}
 	return h
+}
+
+func logIPMiddleware(h http.Handler, appCtx application.Context) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requesterIP := r.Header.Get("X-FORWARDED-FOR")
+		appCtx.Log.Info("[logIPMiddleware]", zap.String("ip", requesterIP))
+		h.ServeHTTP(w, r)
+	})
 }

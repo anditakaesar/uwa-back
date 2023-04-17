@@ -178,7 +178,7 @@ func chainMiddlewares(h http.Handler, appCtx application.Context, middlewares ..
 
 func logIPMiddleware(h http.Handler, appCtx application.Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requesterIP := r.Header.Get("X-FORWARDED-FOR")
+		requesterIP := r.Header.Get("X-Real-IP")
 		appCtx.Log.Info("[logIPMiddleware]", zap.String("ip", requesterIP))
 		h.ServeHTTP(w, r)
 	})

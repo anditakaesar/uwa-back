@@ -30,3 +30,6 @@ __debug_bin
 
 # log files
 *.log
+
+# REST folder
+REST/

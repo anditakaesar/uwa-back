@@ -10,11 +10,14 @@ import (
 
 	"github.com/anditakaesar/uwa-back/adapter/httpserver"
 	"github.com/anditakaesar/uwa-back/adapter/middleware"
+	"github.com/anditakaesar/uwa-back/adapter/migration"
 	"github.com/anditakaesar/uwa-back/internal/client"
 	"github.com/anditakaesar/uwa-back/internal/env"
 	"github.com/anditakaesar/uwa-back/internal/log"
+	"github.com/anditakaesar/uwa-back/internal/postgres"
 	"github.com/anditakaesar/uwa-back/internal/way"
 
+	applicationContext "github.com/anditakaesar/uwa-back/application/context"
 	routerSvc "github.com/anditakaesar/uwa-back/application/services/router"
 )
 
@@ -46,11 +49,25 @@ func run() error {
 	routerService := routerSvc.NewService(httpServerAdapter.Server, httpserver.RouterHelper{}, middlewareAdapter, "/api")
 	routerService.InitOptionsRoute()
 
+	database := postgres.NewDatabase()
+	dbErr := database.Connect()
+	if dbErr != nil {
+		return dbErr
+	}
+
+	appContext := applicationContext.NewAppContext(database, internalLogger)
+
 	//-------------domain here
 
 	//-------------service or use cases
 
 	//-------------adapters
+
+	migration.NewAdapter(migration.RouteDependecy{
+		Context:    routerService,
+		Logger:     internalLogger,
+		AppContext: *appContext,
+	})
 
 	//--------------------------
 

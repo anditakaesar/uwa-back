@@ -1,96 +1,38 @@
 package postgres
 
-// type Database struct {
-// 	Conn *pg.DB
-// 	Tx   *pg.Tx
-// }
+import (
+	"fmt"
 
-// type debugHook struct{}
+	"github.com/anditakaesar/uwa-back/internal/env"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
 
-// // BeforeQuery ...
-// func (debugHook) BeforeQuery(ctx context.Context, evt *pg.QueryEvent) (context.Context, error) {
-// 	q, err := evt.FormattedQuery()
-// 	if err != nil {
-// 		return nil, err
-// 	}
+type Database struct {
+	DB *gorm.DB
+}
 
-// 	if evt.Err != nil {
-// 		log.Printf("Error %s executing query:\n%s\n", evt.Err, q)
-// 	} else {
-// 		log.Printf("%s", q)
-// 	}
+func NewDatabase() *Database {
+	db := &Database{}
 
-// 	return ctx, nil
-// }
+	return db
+}
 
-// // AfterQuery
-// func (debugHook) AfterQuery(context.Context, *pg.QueryEvent) error {
-// 	return nil
-// }
+func GenerateDSN(host string, user string, pwd string, dbname string, port string) string {
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC", host, user, pwd, dbname, port)
+}
 
-// var _ pg.QueryHook = (*debugHook)(nil)
+func (db *Database) Connect() error {
+	dsn := GenerateDSN(env.DBAddress(), env.DBUser(), env.DBPassword(), env.DBName(), env.DBPort())
+	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return err
+	}
 
-// func NewDatabase() *Database {
-// 	db := &Database{}
-// 	db.Connect()
+	db.DB = gormDB
+	return nil
+}
 
-// 	return db
-// }
-
-// // Connect ...
-// func (db *Database) Connect() {
-// 	var tlsConfig *tls.Config
-
-// 	if env.Env() == "production" || env.Env() == "staging" || env.Env() == "development" {
-// 		tlsConfig = &tls.Config{InsecureSkipVerify: true}
-// 	}
-
-// 	db.Conn = pg.Connect(&pg.Options{
-// 		ApplicationName: env.AppName(),
-// 		User:            env.DBUser(),
-// 		Password:        env.DBPassword(),
-// 		Addr:            env.DBAddress(),
-// 		Database:        env.DBDatabase(),
-// 		TLSConfig:       tlsConfig,
-// 	})
-
-// 	if env.Env() == "local" || env.Env() == "development" {
-// 		db.Conn.AddQueryHook(debugHook{})
-// 	}
-// }
-
-// // Close ...
-// func (db *Database) Close() {
-// 	db.Conn.Close()
-// }
-
-// func (db *Database) Health() (bool, error) {
-// 	if db.Conn != nil {
-// 		return true, nil
-// 	}
-
-// 	return false, fmt.Errorf("internal-postgres: connection unavailable")
-// }
-
-// func (db *Database) Get() (*Database, error) {
-// 	if db.Conn != nil {
-// 		return db, nil
-// 	}
-
-// 	return nil, fmt.Errorf("internal-postgres: connection unavailable")
-// }
-
-// func (db *Database) NewTrx() error {
-// 	tx, err := db.Conn.Begin()
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	db.Tx = tx
-
-// 	return nil
-// }
-
-// func (db *Database) ErrNoRows() error {
-// 	return pg.ErrNoRows
-// }
+func (db *Database) Get() *gorm.DB {
+	return db.DB
+}

@@ -11,18 +11,10 @@ import (
 
 const NoticeLevel zapcore.Level = zapcore.DebugLevel - 1
 
-const (
-	InfoColor    = "\033[1;34m"
-	NoticeColor  = "\033[1;36m"
-	WarningColor = "\033[1;33m"
-	ErrorColor   = "\033[1;31m"
-	DebugColor   = "\033[0;36m"
-	ResetColor   = "\033[0m"
-)
-
 type LoggerInterface interface {
 	Info(string, ...zapcore.Field)
 	Error(string, error, ...zapcore.Field)
+	Warning(string, ...zapcore.Field)
 	Flush()
 }
 
@@ -41,6 +33,10 @@ func (l *Logger) Info(msg string, fields ...zapcore.Field) {
 func (l *Logger) Error(msg string, err error, fields ...zapcore.Field) {
 	fields = append(fields, zap.String("internalError", err.Error()))
 	l.zap.Error(msg, fields...)
+}
+
+func (l *Logger) Warning(msg string, fields ...zapcore.Field) {
+	l.zap.Warn(msg, fields...)
 }
 
 func (l *Logger) Flush() {
@@ -66,27 +62,7 @@ func BuildNewLogger() LoggerInterface {
 	devConf.EncoderConfig.EncodeLevel = func(l zapcore.Level, pae zapcore.PrimitiveArrayEncoder) {
 		var col string
 		txt := l.CapitalString()
-		switch l {
-		case NoticeLevel:
-			col += NoticeColor
-			txt = "NOTICE"
-		case zapcore.DebugLevel:
-			col += DebugColor
-		case zapcore.InfoLevel:
-			col += InfoColor
-		case zapcore.WarnLevel:
-			col += WarningColor
-		case zapcore.ErrorLevel:
-			col += ErrorColor
-		case zapcore.DPanicLevel:
-			col += ErrorColor
-		case zapcore.PanicLevel:
-			col += ErrorColor
-		case zapcore.FatalLevel:
-			col += ErrorColor
-		}
-
-		pae.AppendString(col + txt + ResetColor)
+		pae.AppendString(col + txt)
 	}
 
 	newZap, err := devConf.Build(

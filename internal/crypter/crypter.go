@@ -1,4 +1,4 @@
-package utils
+package crypter
 
 import (
 	"crypto/rand"

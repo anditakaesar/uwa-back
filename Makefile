@@ -11,5 +11,4 @@ check-coverage:
 	@go tool cover -func ./coverage.out
 
 mockery-all:
-	@mockery --name=LogInterface --dir=log
-	@mockery --name=DBInterface --dir=database
+	@mockery --name=LoggerInterface --dir=internal/log

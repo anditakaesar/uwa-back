@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/anditakaesar/uwa-back/internal/env"
 	"github.com/anditakaesar/uwa-back/internal/log"
+	"go.uber.org/zap"
 )
 
 // DefaultDecoder ...
@@ -16,7 +18,8 @@ type EndpointHandler func(http.ResponseWriter, *http.Request) ResponseInterface
 
 func (fn EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logger := log.BuildNewLogger()
-	logger.Info(fmt.Sprintf("%s %s", r.Method, r.URL.String()))
+	requestIp := r.Header.Get(env.IPHeaderKey())
+	logger.Info(fmt.Sprintf("%s %s", r.Method, r.URL.String()), zap.Any("ip", requestIp))
 
 	res := fn(w, r)
 

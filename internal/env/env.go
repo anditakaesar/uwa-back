@@ -37,3 +37,11 @@ func UserContext() UserContextKey {
 
 	return "defaultUserContext"
 }
+
+func IPHeaderKey() string {
+	if os.Getenv("IPHeaderKey") != "" {
+		return os.Getenv("IPHeaderKey")
+	}
+
+	return "X-Header"
+}

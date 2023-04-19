@@ -1,19 +1,17 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/anditakaesar/uwa-back/application"
 	"github.com/anditakaesar/uwa-back/common"
-	"github.com/anditakaesar/uwa-back/services"
 	"github.com/anditakaesar/uwa-back/utils"
 	"github.com/gorilla/mux"
 )
 
 func Index(appContext application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		appContext.Log.Info("Index Hit")
+		// appContext.Log.Info("Index Hit")
 
 		type XData struct {
 			Data string
@@ -46,29 +44,29 @@ func GetAuth(appContext application.Context) common.EndpointHandlerJSON {
 
 func PostAuth(appContext application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		request := services.AuthParam{}
-		decoder := json.NewDecoder(r.Body)
-		err := decoder.Decode(&request)
-		if err != nil {
-			return res.SetWithStatus(http.StatusInternalServerError, map[string]string{"message": "error decoder"})
-		}
+		// request := services.AuthParam{}
+		// decoder := json.NewDecoder(r.Body)
+		// err := decoder.Decode(&request)
+		// if err != nil {
+		// 	return res.SetWithStatus(http.StatusInternalServerError, map[string]string{"message": "error decoder"})
+		// }
 
-		authService := appContext.Services.AuthService
+		// authService := appContext.Services.AuthService
 
-		userToken, err := authService.AuthUser(request)
-		if err != nil {
-			return res.SetWithStatus(http.StatusUnauthorized, map[string]string{"message": err.Error()})
-		}
+		// userToken, err := authService.AuthUser(request)
+		// if err != nil {
+		// 	return res.SetWithStatus(http.StatusUnauthorized, map[string]string{"message": err.Error()})
+		// }
 
-		return res.SetOK(map[string]string{"message": "Post Auth Api", "token": userToken})
+		return res.SetOK(map[string]string{"message": "Post Auth Api", "token": "some-str"})
 	}
 }
 
 func PatchForceExpiryToken(appContext application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		userToken := utils.GetBearerToken(r)
-		appContext.AuthService.RevokeAuthToken(userToken)
-		return res.SetOK(map[string]string{"message": "Token Expired", "token": userToken})
+		// userToken := utils.GetBearerToken(r)
+		// appContext.AuthService.RevokeAuthToken(userToken)
+		return res.SetOK(map[string]string{"message": "Token Expired", "token": "userToken"})
 	}
 }
 
@@ -91,10 +89,10 @@ func GetHashString(appCtx application.Context) common.EndpointHandlerJSON {
 
 func MigrateAll(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		err := appCtx.Services.DBToolsService.AutoMigrate()
-		if err != nil {
-			return res.SetInternalError(err)
-		}
+		//err := appCtx.Services.DBToolsService.AutoMigrate()
+		// if err != nil {
+		// 	return res.SetInternalError(err)
+		// }
 
 		return res.SetOKWithSuccessMessage()
 	}
@@ -102,14 +100,14 @@ func MigrateAll(appCtx application.Context) common.EndpointHandlerJSON {
 
 func SeedOne(appCtx application.Context) common.EndpointHandlerJSON {
 	return func(w http.ResponseWriter, r *http.Request) (res common.CommonResponseJSON) {
-		table := mux.Vars(r)["table"]
-		if table == "" {
-			return res.SetWithStatus(http.StatusBadRequest, map[string]string{"message": "table name required"})
-		}
-		err := appCtx.Services.DBToolsService.Seed(table)
-		if err != nil {
-			return res.SetInternalError(err)
-		}
+		// table := mux.Vars(r)["table"]
+		// if table == "" {
+		// 	return res.SetWithStatus(http.StatusBadRequest, map[string]string{"message": "table name required"})
+		// }
+		// err := appCtx.Services.DBToolsService.Seed(table)
+		// if err != nil {
+		// 	return res.SetInternalError(err)
+		// }
 
 		return res.SetOKWithSuccessMessage()
 	}

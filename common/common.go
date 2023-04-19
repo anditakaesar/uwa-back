@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/anditakaesar/uwa-back/log"
 	"github.com/unrolled/render"
 )
 
@@ -17,7 +16,8 @@ type CommonResponseJSON struct {
 }
 
 var commonRender *render.Render = render.New()
-var commonLogger log.LogInterface = log.BuildLogger()
+
+// var commonLogger log.LogInterface = log.BuildLogger()
 
 func (res *CommonResponseJSON) GetStatus() int {
 	return res.status
@@ -92,10 +92,10 @@ func (res *CommonResponseJSON) SetBadRequest(err error) CommonResponseJSON {
 type EndpointHandlerJSON func(http.ResponseWriter, *http.Request) CommonResponseJSON
 
 func (fn EndpointHandlerJSON) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	commonLogger.Info(fmt.Sprintf("%s %s", r.Method, r.URL.String()))
+	// commonLogger.Info(fmt.Sprintf("%s %s", r.Method, r.URL.String()))
 	res := fn(w, r)
 	if res.HasError() {
-		commonLogger.Error(res.GetCompleteErrMessage())
+		// commonLogger.Error(res.GetCompleteErrMessage())
 		data := struct {
 			Code    int
 			Message string

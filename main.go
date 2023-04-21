@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/anditakaesar/uwa-back/adapter/healthcheck"
 	"github.com/anditakaesar/uwa-back/adapter/httpserver"
 	"github.com/anditakaesar/uwa-back/adapter/middleware"
 	"github.com/anditakaesar/uwa-back/adapter/migration"
@@ -15,6 +16,7 @@ import (
 	"github.com/anditakaesar/uwa-back/internal/env"
 	"github.com/anditakaesar/uwa-back/internal/log"
 	"github.com/anditakaesar/uwa-back/internal/postgres"
+	internalRedis "github.com/anditakaesar/uwa-back/internal/redis"
 	"github.com/anditakaesar/uwa-back/internal/way"
 
 	applicationContext "github.com/anditakaesar/uwa-back/application/context"
@@ -34,7 +36,7 @@ func run() error {
 	flag.Parse()
 
 	internalLogger := log.BuildNewLogger()
-	internalRouter := way.NewRouter()
+	internalRouter := way.NewRouter(internalLogger)
 	httpServerAdapter := httpserver.NewAdapter(&httpserver.Adapter{
 		Log:    internalLogger,
 		Router: internalRouter,
@@ -55,7 +57,17 @@ func run() error {
 		return dbErr
 	}
 
-	appContext := applicationContext.NewAppContext(database, internalLogger)
+	redis := internalRedis.NewInternalRedis()
+	redisErr := redis.Connect()
+	if redisErr != nil {
+		return redisErr
+	}
+
+	appContext := applicationContext.NewAppContext(applicationContext.AppContextDependency{
+		DB:     database,
+		Logger: internalLogger,
+		Redis:  redis,
+	})
 
 	//-------------domain here
 
@@ -66,7 +78,13 @@ func run() error {
 	migration.NewAdapter(migration.RouteDependecy{
 		Context:    routerService,
 		Logger:     internalLogger,
-		AppContext: *appContext,
+		AppContext: appContext,
+	})
+
+	healthcheck.NewAdapter(healthcheck.RouteDependecy{
+		Context:    routerService,
+		Logger:     internalLogger,
+		AppContext: appContext,
 	})
 
 	//--------------------------

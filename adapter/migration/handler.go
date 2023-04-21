@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/anditakaesar/uwa-back/adapter/database"
 	"github.com/anditakaesar/uwa-back/application/context"
 	"github.com/anditakaesar/uwa-back/internal/handler"
 	"github.com/anditakaesar/uwa-back/internal/log"
@@ -15,13 +14,11 @@ import (
 )
 
 type HandlerDependency struct {
-	DB         database.DatabaseInterface
 	Logger     log.LoggerInterface
 	AppContext context.AppContext
 }
 
 type Handler struct {
-	DB         database.DatabaseInterface
 	Resp       handler.ResponseInterface
 	Log        log.LoggerInterface
 	AppContext context.AppContext
@@ -29,7 +26,6 @@ type Handler struct {
 
 func NewHandler(d HandlerDependency) Handler {
 	return Handler{
-		DB:         d.DB,
 		Resp:       handler.NewResponse(handler.Dep{Log: d.Logger}),
 		Log:        d.Logger,
 		AppContext: d.AppContext,

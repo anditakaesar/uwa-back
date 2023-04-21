@@ -2,9 +2,14 @@ package way
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"sort"
 	"strings"
+
+	"github.com/anditakaesar/uwa-back/internal/env"
+	"github.com/anditakaesar/uwa-back/internal/log"
+	"go.uber.org/zap"
 )
 
 // wayContextKey is the context key type for storing
@@ -20,10 +25,20 @@ type Router struct {
 }
 
 // NewRouter makes a new Router.
-func NewRouter() *Router {
+func NewRouter(log log.LoggerInterface) *Router {
 	return &Router{
-		NotFound: http.NotFoundHandler(),
+		NotFound: CustomNotFoundHandler(log),
 	}
+}
+
+// NotFoundHandler returns a simple request handler
+// that replies to each request with a ``404 page not found'' reply.
+func CustomNotFoundHandler(log log.LoggerInterface) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requesterIp := r.Header.Get(env.IPHeaderKey())
+		log.Info(fmt.Sprintf("%s %s", r.Method, r.URL), zap.Any("ip", requesterIp))
+		http.Error(w, "404 page not found", http.StatusNotFound)
+	})
 }
 
 func (r *Router) pathSegments(p string) []string {

@@ -52,7 +52,10 @@ func (r *Context) RegisterEndpointWithPrefix(info EndpointInfo, prefix string) {
 
 	verificationFns := getVerificationMethod(m, info.Verifications)
 
-	r.router.Handle(info.HTTPMethod, urlPattern, m.Cors(m.Verify(info.Handler, verificationFns...)))
+	r.router.Handle(info.HTTPMethod, urlPattern,
+		m.IpLogging(
+			m.Cors(
+				m.Verify(info.Handler, verificationFns...))))
 }
 
 func getVerificationMethod(m *ma.Middleware, verifications []constants.VerificationType) []ma.MiddlewareFunc {

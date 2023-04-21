@@ -2,12 +2,7 @@ package handler
 
 import (
 	jsonEncoding "encoding/json"
-	"fmt"
 	"net/http"
-
-	"github.com/anditakaesar/uwa-back/internal/env"
-	"github.com/anditakaesar/uwa-back/internal/log"
-	"go.uber.org/zap"
 )
 
 // DefaultDecoder ...
@@ -17,10 +12,6 @@ import (
 type EndpointHandler func(http.ResponseWriter, *http.Request) ResponseInterface
 
 func (fn EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	logger := log.BuildNewLogger()
-	requestIp := r.Header.Get(env.IPHeaderKey())
-	logger.Info(fmt.Sprintf("%s %s", r.Method, r.URL.String()), zap.Any("ip", requestIp))
-
 	res := fn(w, r)
 
 	w.Header().Set("Content-Type", "application/json")

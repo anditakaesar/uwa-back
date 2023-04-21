@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"github.com/anditakaesar/uwa-back/internal/env"
-	"log"
 	"net/http"
 	"strings"
+
+	"github.com/anditakaesar/uwa-back/internal/env"
+	"go.uber.org/zap"
 
 	"github.com/thoas/go-funk"
 )
@@ -32,7 +33,7 @@ func (m Middleware) Cors(h http.Handler) http.HandlerFunc {
 		baseOrigin := r.Header.Get("Origin")
 
 		if r.Method == "OPTIONS" {
-			log.Print("preflight detected: ", r.Header)
+			m.Log.Info("[Middleware][Cors] preflight detected", zap.Any("headers", r.Header))
 			w.Header().Add("Connection", "keep-alive")
 			w.Header().Add("Access-Control-Allow-Origin", getAccessControlOriginVal(baseOrigin))
 			w.Header().Add("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")

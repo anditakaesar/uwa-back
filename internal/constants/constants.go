@@ -14,3 +14,16 @@ var VerificationTypeConstants = struct {
 	APIToken:    APITokenValue,
 	AccessToken: AccessTokenValue,
 }
+
+const (
+	ApplicationJsonMime = "application/json"
+	TextPlainMime       = "text/plain"
+)
+
+var AvailableMimeType = struct {
+	ApplicationJson string
+	TextPlain       string
+}{
+	ApplicationJson: ApplicationJsonMime,
+	TextPlain:       TextPlainMime,
+}

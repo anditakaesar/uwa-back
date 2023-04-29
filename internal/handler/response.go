@@ -8,13 +8,14 @@ import (
 )
 
 type HTTPResponse struct {
-	status    int
-	data      interface{}
-	err       error
-	errCode   int
-	message   string
-	noContent bool
-	Logger    log.LoggerInterface
+	status      int
+	data        interface{}
+	err         error
+	errCode     int
+	message     string
+	noContent   bool
+	contentType string
+	Logger      log.LoggerInterface
 }
 
 type Dep struct {
@@ -128,6 +129,18 @@ func (res HTTPResponse) SetErrorWithData(errParam ErrorResponseParam, data inter
 	return res
 }
 
+func (res HTTPResponse) GetContentType() string {
+	return res.contentType
+}
+
+func (res HTTPResponse) SetOkWithText(contentType string, data string) HTTPResponse {
+	res.contentType = contentType
+	res.data = data
+	res.status = http.StatusOK
+
+	return res
+}
+
 type ErrorResponseParam struct {
 	Status  int
 	Err     error
@@ -139,6 +152,7 @@ type ErrorResponseParam struct {
 type ResponseInterface interface {
 	SetOk(data interface{}) HTTPResponse
 	SetOkWithStatus(status int, data interface{}) HTTPResponse
+	SetOkWithText(contentType string, data string) HTTPResponse
 	SetError(err error, errCode int, message string) HTTPResponse
 	SetErrorWithStatus(status int, err error, errCode int, message string) HTTPResponse
 	SetErrorWithData(errParam ErrorResponseParam, data interface{}) HTTPResponse
@@ -150,4 +164,5 @@ type ResponseInterface interface {
 	GetErrorMessage() string
 	GetErrorMessageVerbose() string
 	HasNoContent() bool
+	GetContentType() string
 }

@@ -45,3 +45,7 @@ func IPHeaderKey() string {
 
 	return "X-Header"
 }
+
+func HostURL() string {
+	return os.Getenv("HostURL")
+}

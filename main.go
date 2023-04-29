@@ -10,6 +10,7 @@ import (
 
 	"github.com/anditakaesar/uwa-back/adapter/healthcheck"
 	"github.com/anditakaesar/uwa-back/adapter/httpserver"
+	"github.com/anditakaesar/uwa-back/adapter/logviewer"
 	"github.com/anditakaesar/uwa-back/adapter/middleware"
 	"github.com/anditakaesar/uwa-back/adapter/migration"
 	"github.com/anditakaesar/uwa-back/internal/client"
@@ -82,6 +83,12 @@ func run() error {
 	})
 
 	healthcheck.NewAdapter(healthcheck.RouteDependecy{
+		Context:    routerService,
+		Logger:     internalLogger,
+		AppContext: appContext,
+	})
+
+	logviewer.NewAdapter(logviewer.RouteDependecy{
 		Context:    routerService,
 		Logger:     internalLogger,
 		AppContext: appContext,

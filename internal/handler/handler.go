@@ -3,6 +3,8 @@ package handler
 import (
 	jsonEncoding "encoding/json"
 	"net/http"
+
+	"github.com/anditakaesar/uwa-back/internal/constants"
 )
 
 // DefaultDecoder ...
@@ -14,7 +16,16 @@ type EndpointHandler func(http.ResponseWriter, *http.Request) ResponseInterface
 func (fn EndpointHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	res := fn(w, r)
 
-	w.Header().Set("Content-Type", "application/json")
+	switch res.GetContentType() {
+	case constants.AvailableMimeType.TextPlain:
+		handleTextResponse(w, res)
+	default:
+		handleJsonResponse(w, r, res)
+	}
+}
+
+func handleJsonResponse(w http.ResponseWriter, r *http.Request, res ResponseInterface) {
+	w.Header().Set("Content-Type", constants.AvailableMimeType.ApplicationJson)
 	w.WriteHeader(res.GetStatus())
 
 	if res.HasError() {
@@ -68,4 +79,11 @@ func encodeResponse(w http.ResponseWriter, data interface{}) {
 
 		http.Error(w, "Error encode response", http.StatusInternalServerError)
 	}
+}
+
+func handleTextResponse(w http.ResponseWriter, res ResponseInterface) {
+	w.Header().Set("Content-Type", constants.AvailableMimeType.TextPlain)
+	w.WriteHeader(res.GetStatus())
+
+	w.Write([]byte(res.GetData().(string)))
 }

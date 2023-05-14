@@ -38,7 +38,15 @@ func run() error {
 	addr := flag.String("addr", env.AppPort(), "http service address")
 	flag.Parse()
 
-	internalLogger := log.BuildNewLogger()
+	logglyCore := log.NewLogglyZapCore(log.NewLogglyLogWriter(
+		log.LogglyLogWriterDependency{
+			HttpClient:    &http.Client{},
+			BaseUrl:       env.LogglyBaseUrl(),
+			CustomerToken: env.LogglyToken(),
+			Tag:           env.LogglyTag(),
+		},
+	))
+	internalLogger := log.BuildNewLogger(logglyCore)
 	internalRouter := way.NewRouter(internalLogger)
 	httpServerAdapter := httpserver.NewAdapter(&httpserver.Adapter{
 		Log:    internalLogger,

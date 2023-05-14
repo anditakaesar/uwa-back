@@ -17,10 +17,14 @@ func (m Middleware) IpLogging(h http.Handler) http.HandlerFunc {
 
 		if requesterIP != "" {
 			_, err := m.IpLogRepo.UpdateCounter(requesterIP)
-			m.Log.Error("[Middleware][IpLogging] UpdateCounter", err)
+			if err != nil {
+				m.Log.Error("[Middleware][IpLogging] UpdateCounter", err)
+			}
 		}
 
-		m.Log.Info(fmt.Sprintf("%s %s", r.Method, r.URL), zap.Any("ip", requesterIP))
+		go m.Log.Info(fmt.Sprintf("%s %s", r.Method, r.URL),
+			zap.Any("ip", requesterIP),
+			zap.Any("headers", r.Header))
 		h.ServeHTTP(w, r)
 	}
 }

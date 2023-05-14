@@ -49,3 +49,19 @@ func IPHeaderKey() string {
 func HostURL() string {
 	return os.Getenv("HostURL")
 }
+
+func LogglyBaseUrl() string {
+	return os.Getenv("LogglyBaseUrl")
+}
+
+func LogglyToken() string {
+	return os.Getenv("LogglyToken")
+}
+
+func LogglyTag() string {
+	if os.Getenv("LogglyTag") != "" {
+		return os.Getenv("LogglyTag")
+	}
+
+	return os.Getenv("Env")
+}

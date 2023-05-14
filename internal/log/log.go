@@ -1,9 +1,7 @@
 package log
 
 import (
-	"fmt"
-	"log"
-	"time"
+	"os"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -27,20 +25,20 @@ type Logger struct {
 }
 
 func (l *Logger) Info(msg string, fields ...zapcore.Field) {
-	l.zap.Info(msg, fields...)
+	go l.zap.Info(msg, fields...)
 }
 
 func (l *Logger) Error(msg string, err error, fields ...zapcore.Field) {
 	fields = append(fields, zap.String("internalError", err.Error()))
-	l.zap.Error(msg, fields...)
+	go l.zap.Error(msg, fields...)
 }
 
 func (l *Logger) Warning(msg string, fields ...zapcore.Field) {
-	l.zap.Warn(msg, fields...)
+	go l.zap.Warn(msg, fields...)
 }
 
 func (l *Logger) Flush() {
-	l.zap.Sync()
+	go l.zap.Sync()
 }
 
 func NewLogger(ld *LoggerDependency) LoggerInterface {
@@ -51,26 +49,15 @@ func NewLogger(ld *LoggerDependency) LoggerInterface {
 	}
 }
 
-func BuildNewLogger() LoggerInterface {
-	executionTime := time.Now()
-	todayOutputPath := fmt.Sprintf("%04d-%02d-%02d.log", executionTime.Year(), executionTime.Month(), executionTime.Day())
-	var err error
-	devConf := zap.NewDevelopmentConfig()
-	devConf.OutputPaths = []string{todayOutputPath, "stderr"}
-	devConf.Level = zap.NewAtomicLevelAt(NoticeLevel)
-	devConf.DisableStacktrace = true
-	devConf.EncoderConfig.EncodeLevel = func(l zapcore.Level, pae zapcore.PrimitiveArrayEncoder) {
-		var col string
-		txt := l.CapitalString()
-		pae.AppendString(col + txt)
-	}
+func BuildNewLogger(cores ...zapcore.Core) LoggerInterface {
+	logPriority := zap.LevelEnablerFunc(func(l zapcore.Level) bool {
+		return l >= zapcore.DebugLevel
+	})
 
-	newZap, err := devConf.Build(
-		zap.AddCallerSkip(1),
-	)
-	if err != nil {
-		log.Fatal("cannot init logger in local", err)
-	}
+	cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()), zapcore.Lock(os.Stderr), logPriority))
+	core := zapcore.NewTee(cores...)
+
+	newZap := zap.New(core, zap.AddCallerSkip(1))
 
 	defer newZap.Sync()
 	return NewLogger(&LoggerDependency{

@@ -33,6 +33,8 @@ func (r MigrationRoute) InitEndpoints() {
 	})
 
 	r.Context.RegisterEndpoint(r.PostUpMigration(h))
+	r.Context.RegisterEndpoint(r.PostDoMigration(h))
+	r.Context.RegisterEndpoint(r.GetListMigration(h))
 }
 
 func (r MigrationRoute) PostUpMigration(h Handler) router.EndpointInfo {
@@ -40,6 +42,28 @@ func (r MigrationRoute) PostUpMigration(h Handler) router.EndpointInfo {
 		HTTPMethod: http.MethodPost,
 		URLPattern: "/migration/up",
 		Handler:    h.UpMigration(),
+		Verifications: []constants.VerificationType{
+			constants.VerificationTypeConstants.APIToken,
+		},
+	}
+}
+
+func (r MigrationRoute) PostDoMigration(h Handler) router.EndpointInfo {
+	return router.EndpointInfo{
+		HTTPMethod: http.MethodPost,
+		URLPattern: "/migration/do",
+		Handler:    h.DoMigration(),
+		Verifications: []constants.VerificationType{
+			constants.VerificationTypeConstants.APIToken,
+		},
+	}
+}
+
+func (r MigrationRoute) GetListMigration(h Handler) router.EndpointInfo {
+	return router.EndpointInfo{
+		HTTPMethod: http.MethodGet,
+		URLPattern: "/migration",
+		Handler:    h.GetAvailableMigration(),
 		Verifications: []constants.VerificationType{
 			constants.VerificationTypeConstants.APIToken,
 		},

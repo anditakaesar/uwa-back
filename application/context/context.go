@@ -8,24 +8,27 @@ import (
 )
 
 type AppContext struct {
-	DB     database.DatabaseInterface
-	Logger log.LoggerInterface
-	Redis  redis.RedisInterface
-	Mailer mailer.MailerInterface
+	DB        database.DatabaseInterface
+	Logger    log.LoggerInterface
+	Redis     redis.RedisInterface
+	Mailer    mailer.MailerInterface
+	IpLogRepo database.IpLogRepositoryInterface
 }
 
 type AppContextDependency struct {
-	DB     database.DatabaseInterface
-	Logger log.LoggerInterface
-	Redis  redis.RedisInterface
-	Mailer mailer.MailerInterface
+	DB        database.DatabaseInterface
+	Logger    log.LoggerInterface
+	Redis     redis.RedisInterface
+	Mailer    mailer.MailerInterface
+	IpLogRepo database.IpLogRepositoryInterface
 }
 
 func NewAppContext(d AppContextDependency) AppContext {
 	return AppContext{
-		DB:     d.DB,
-		Logger: d.Logger,
-		Redis:  d.Redis,
-		Mailer: d.Mailer,
+		DB:        d.DB,
+		Logger:    d.Logger,
+		Redis:     d.Redis,
+		Mailer:    d.Mailer,
+		IpLogRepo: d.IpLogRepo,
 	}
 }

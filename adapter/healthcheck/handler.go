@@ -52,3 +52,10 @@ func (h Handler) SendTestMail() handler.EndpointHandler {
 		return h.Resp.SetOk(nil)
 	}
 }
+
+func (h Handler) GetIpLog() handler.EndpointHandler {
+	return func(w http.ResponseWriter, r *http.Request) handler.ResponseInterface {
+		ipLog, _ := h.AppContext.IpLogRepo.GetIplogByAddress("127.0.0.1")
+		return h.Resp.SetOk(ipLog)
+	}
+}

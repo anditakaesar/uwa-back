@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	adapterDB "github.com/anditakaesar/uwa-back/adapter/database"
 	"github.com/anditakaesar/uwa-back/adapter/healthcheck"
 	"github.com/anditakaesar/uwa-back/adapter/httpserver"
 	"github.com/anditakaesar/uwa-back/adapter/logviewer"
@@ -44,20 +45,21 @@ func run() error {
 		Router: internalRouter,
 	})
 
-	newClient := client.New()
-	middlewareAdapter := middleware.NewAdapter(middleware.Middleware{
-		Client: newClient,
-		Log:    internalLogger,
-	})
-
-	routerService := routerSvc.NewService(httpServerAdapter.Server, httpserver.RouterHelper{}, middlewareAdapter, "/api")
-	routerService.InitOptionsRoute()
-
 	database := postgres.NewDatabase()
 	dbErr := database.Connect()
 	if dbErr != nil {
 		return dbErr
 	}
+
+	newClient := client.New()
+	middlewareAdapter := middleware.NewAdapter(middleware.Middleware{
+		Client:    newClient,
+		Log:       internalLogger,
+		IpLogRepo: adapterDB.NewIpLogRepository(database),
+	})
+
+	routerService := routerSvc.NewService(httpServerAdapter.Server, httpserver.RouterHelper{}, middlewareAdapter, "/api")
+	routerService.InitOptionsRoute()
 
 	redis := internalRedis.NewInternalRedis()
 	redisErr := redis.Connect()
@@ -68,10 +70,11 @@ func run() error {
 	internalMailer := mailer.NewMailerAdapter(internalLogger)
 
 	appContext := applicationContext.NewAppContext(applicationContext.AppContextDependency{
-		DB:     database,
-		Logger: internalLogger,
-		Redis:  redis,
-		Mailer: internalMailer,
+		DB:        database,
+		Logger:    internalLogger,
+		Redis:     redis,
+		Mailer:    internalMailer,
+		IpLogRepo: adapterDB.NewIpLogRepository(database),
 	})
 
 	//-------------domain here

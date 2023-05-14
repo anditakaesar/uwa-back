@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL
 );
 
-CREATE INDEX idx_guid ON users("guid");
-CREATE INDEX idx_deleted_at ON users(deleted_at);
-CREATE INDEX idx_username ON users(username);
-CREATE INDEX idx_email ON users(email);
+CREATE INDEX idx_users_guid ON users("guid");
+CREATE INDEX idx_users_deleted_at ON users(deleted_at);
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_email ON users(email);

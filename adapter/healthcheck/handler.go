@@ -40,3 +40,15 @@ func (h Handler) CheckHealth() handler.EndpointHandler {
 		return h.Resp.SetOk(newKey)
 	}
 }
+
+func (h Handler) SendTestMail() handler.EndpointHandler {
+	return func(w http.ResponseWriter, r *http.Request) handler.ResponseInterface {
+		err := h.AppContext.Mailer.SendMail("anditakaesar@gmail.com", "Some Test Subject", "This is a body, Thank You!")
+
+		if err != nil {
+			return h.Resp.SetErrorWithStatus(http.StatusInternalServerError, err, 1, "error")
+		}
+
+		return h.Resp.SetOk(nil)
+	}
+}

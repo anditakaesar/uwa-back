@@ -33,6 +33,7 @@ func (r HealthCheckRoute) InitEndpoints() {
 	})
 
 	r.Context.RegisterEndpoint(r.GetHealtCheckStatus(h))
+	r.Context.RegisterEndpoint(r.PostTestMail(h))
 }
 
 func (r HealthCheckRoute) GetHealtCheckStatus(h Handler) router.EndpointInfo {
@@ -40,6 +41,17 @@ func (r HealthCheckRoute) GetHealtCheckStatus(h Handler) router.EndpointInfo {
 		HTTPMethod: http.MethodGet,
 		URLPattern: "/healthcheck/status",
 		Handler:    h.CheckHealth(),
+		Verifications: []constants.VerificationType{
+			constants.VerificationTypeConstants.APIToken,
+		},
+	}
+}
+
+func (r HealthCheckRoute) PostTestMail(h Handler) router.EndpointInfo {
+	return router.EndpointInfo{
+		HTTPMethod: http.MethodPost,
+		URLPattern: "/healthcheck/sendmail",
+		Handler:    h.SendTestMail(),
 		Verifications: []constants.VerificationType{
 			constants.VerificationTypeConstants.APIToken,
 		},

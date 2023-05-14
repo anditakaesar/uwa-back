@@ -21,3 +21,7 @@ create-migration: ## Create new migration file. It takes parameter `file` as fil
 tidy-vendor:
 	@go mod tidy
 	@go mod vendor
+
+prod-build:
+	@go build -o ../app
+	@cp -r ./migrations/ ~/

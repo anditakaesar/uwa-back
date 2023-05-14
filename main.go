@@ -11,6 +11,7 @@ import (
 	"github.com/anditakaesar/uwa-back/adapter/healthcheck"
 	"github.com/anditakaesar/uwa-back/adapter/httpserver"
 	"github.com/anditakaesar/uwa-back/adapter/logviewer"
+	"github.com/anditakaesar/uwa-back/adapter/mailer"
 	"github.com/anditakaesar/uwa-back/adapter/middleware"
 	"github.com/anditakaesar/uwa-back/adapter/migration"
 	"github.com/anditakaesar/uwa-back/internal/client"
@@ -64,10 +65,13 @@ func run() error {
 		return redisErr
 	}
 
+	internalMailer := mailer.NewMailerAdapter(internalLogger)
+
 	appContext := applicationContext.NewAppContext(applicationContext.AppContextDependency{
 		DB:     database,
 		Logger: internalLogger,
 		Redis:  redis,
+		Mailer: internalMailer,
 	})
 
 	//-------------domain here

@@ -25,9 +25,9 @@ type Router struct {
 }
 
 // NewRouter makes a new Router.
-func NewRouter(log log.LoggerInterface) *Router {
+func NewRouter(notFoundHandler http.Handler) *Router {
 	return &Router{
-		NotFound: CustomNotFoundHandler(log),
+		NotFound: notFoundHandler,
 	}
 }
 

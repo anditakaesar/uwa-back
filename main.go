@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/anditakaesar/uwa-back/adapter/database"
 	adapterDB "github.com/anditakaesar/uwa-back/adapter/database"
 	"github.com/anditakaesar/uwa-back/adapter/healthcheck"
 	"github.com/anditakaesar/uwa-back/adapter/httpserver"
@@ -21,6 +22,7 @@ import (
 	"github.com/anditakaesar/uwa-back/internal/postgres"
 	internalRedis "github.com/anditakaesar/uwa-back/internal/redis"
 	"github.com/anditakaesar/uwa-back/internal/way"
+	"go.uber.org/zap"
 
 	applicationContext "github.com/anditakaesar/uwa-back/application/context"
 	routerSvc "github.com/anditakaesar/uwa-back/application/services/router"
@@ -46,12 +48,6 @@ func run() error {
 			Tag:           env.LogglyTag(),
 		},
 	))
-	internalLogger := log.BuildNewLogger(logglyCore)
-	internalRouter := way.NewRouter(internalLogger)
-	httpServerAdapter := httpserver.NewAdapter(&httpserver.Adapter{
-		Log:    internalLogger,
-		Router: internalRouter,
-	})
 
 	database := postgres.NewDatabase()
 	dbErr := database.Connect()
@@ -59,11 +55,20 @@ func run() error {
 		return dbErr
 	}
 
+	internalLogger := log.BuildNewLogger(logglyCore)
+	notFoundHandler := NotFoundHandlerWithIpLogging(internalLogger, adapterDB.NewIpLogRepository(database))
+	internalRouter := way.NewRouter(notFoundHandler)
+
 	newClient := client.New()
 	middlewareAdapter := middleware.NewAdapter(middleware.Middleware{
 		Client:    newClient,
 		Log:       internalLogger,
 		IpLogRepo: adapterDB.NewIpLogRepository(database),
+	})
+
+	httpServerAdapter := httpserver.NewAdapter(&httpserver.Adapter{
+		Log:    internalLogger,
+		Router: internalRouter,
 	})
 
 	routerService := routerSvc.NewService(httpServerAdapter.Server, httpserver.RouterHelper{}, middlewareAdapter, "/api")
@@ -125,4 +130,25 @@ func run() error {
 	internalLogger.Info("+++++++++++++++++++++++++++++++++++++++++++++++++++")
 
 	return s.ListenAndServe()
+}
+
+func NotFoundHandlerWithIpLogging(internalLogger log.LoggerInterface, ipLogRepo database.IpLogRepositoryInterface) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requesterIp := r.Header.Get(env.IPHeaderKey())
+		if env.Env() == "development" && requesterIp == "" {
+			requesterIp = "127.0.0.1"
+		}
+
+		if requesterIp != "" {
+			_, err := ipLogRepo.UpdateCounter(requesterIp)
+			if err != nil {
+				internalLogger.Error("[NotFoundHandlerWithIpLogging] UpdateCounter", err)
+			}
+		}
+
+		go internalLogger.Info(fmt.Sprintf("%s %s", r.Method, r.URL),
+			zap.Any("ip", requesterIp),
+			zap.Any("headers", r.Header))
+		http.Error(w, "404 page not found", http.StatusNotFound)
+	})
 }

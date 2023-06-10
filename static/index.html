@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to akae0 at akae.xyz</title>
+    <meta name="title" content="Welcome to akae0 at akae.xyz">
+    <meta name="description" content="akae0 anditakaesar.com andita fahmi anditakaesar">
+    <meta name="keywords" content="website, blog">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="language" content="English">
+    <style>
+        body {
+            margin: 5px;
+        }
+    </style>
+    <script>
+        function getIP() {
+            let ip = '';
+            fetch('https://api.ipify.org/?format=json')
+                .then(data => data.json())
+                .then(data => {
+                    setIP(data.ip)
+                })
+                .catch(data => {
+                    console.log(data)
+                })
+        }
+
+        function setIP(ipVal) {
+            let elem = document.getElementById("ipAddr")
+            elem.innerHTML = ipVal
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Welcome</h1>
+    <p>Your ip is: <span id="ipAddr"></span></p>
+    <script>
+        getIP()
+    </script>
+</body>
+
+</html>

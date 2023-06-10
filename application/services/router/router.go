@@ -45,6 +45,17 @@ func (r *Context) RegisterEndpoint(info EndpointInfo) {
 	r.RegisterEndpointWithPrefix(info, r.prefix)
 }
 
+// RegisterRootEndpoint ...
+func (r *Context) RegisterRootEndpoint(info EndpointInfo) {
+	m := r.middleware
+	fs := http.FileServer(http.Dir("./static"))
+	verificationFns := getVerificationMethod(m, info.Verifications)
+
+	r.router.Handle(info.HTTPMethod, info.URLPattern,
+		m.Cors(
+			m.Verify(fs, verificationFns...)))
+}
+
 // RegisterEndpointWithPrefix ...
 func (r *Context) RegisterEndpointWithPrefix(info EndpointInfo, prefix string) {
 	m := r.middleware

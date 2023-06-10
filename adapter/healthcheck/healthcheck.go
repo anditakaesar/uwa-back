@@ -34,6 +34,7 @@ func (r HealthCheckRoute) InitEndpoints() {
 
 	r.Context.RegisterEndpoint(r.GetHealtCheckStatus(h))
 	r.Context.RegisterEndpoint(r.PostTestMail(h))
+	r.Context.RegisterRootEndpoint(r.ServeStatic(h))
 }
 
 func (r HealthCheckRoute) GetHealtCheckStatus(h Handler) router.EndpointInfo {
@@ -55,5 +56,14 @@ func (r HealthCheckRoute) PostTestMail(h Handler) router.EndpointInfo {
 		Verifications: []constants.VerificationType{
 			constants.VerificationTypeConstants.APIToken,
 		},
+	}
+}
+
+func (r HealthCheckRoute) ServeStatic(h Handler) router.EndpointInfo {
+	return router.EndpointInfo{
+		HTTPMethod:    http.MethodGet,
+		URLPattern:    "/",
+		Handler:       nil,
+		Verifications: []constants.VerificationType{},
 	}
 }

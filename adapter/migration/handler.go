@@ -70,6 +70,8 @@ func (h Handler) DoMigration() handler.EndpointHandler {
 			return h.Resp.SetErrorWithStatus(http.StatusBadRequest, err, 1, err.Error())
 		}
 
+		defer r.Body.Close()
+
 		sqlDB, _ := h.AppContext.DB.Get().DB()
 		mydir, _ := os.Getwd()
 		driver, err := migratePg.WithInstance(sqlDB, &migratePg.Config{})

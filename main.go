@@ -16,6 +16,7 @@ import (
 	"github.com/anditakaesar/uwa-back/adapter/mailer"
 	"github.com/anditakaesar/uwa-back/adapter/middleware"
 	"github.com/anditakaesar/uwa-back/adapter/migration"
+	"github.com/anditakaesar/uwa-back/adapter/tools"
 	"github.com/anditakaesar/uwa-back/internal/client"
 	"github.com/anditakaesar/uwa-back/internal/env"
 	"github.com/anditakaesar/uwa-back/internal/log"
@@ -109,6 +110,12 @@ func run() error {
 	})
 
 	logviewer.NewAdapter(logviewer.RouteDependecy{
+		Context:    routerService,
+		Logger:     internalLogger,
+		AppContext: appContext,
+	})
+
+	tools.NewAdapter(tools.RouteDependecy{
 		Context:    routerService,
 		Logger:     internalLogger,
 		AppContext: appContext,

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/anditakaesar/uwa-back/compare/v1.4.0...v1.5.0) (2023-08-26)
+
+
+### Features
+
+* change http client not using a default ([3b15deb](https://github.com/anditakaesar/uwa-back/commit/3b15debffe6c3cabffe83baf45530df1251aca1c))
+
 ## [1.4.0](https://github.com/anditakaesar/uwa-back/compare/v1.3.0...v1.4.0) (2023-06-28)
 
 

@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/anditakaesar/uwa-back/adapter/database"
 	adapterDB "github.com/anditakaesar/uwa-back/adapter/database"
 	"github.com/anditakaesar/uwa-back/adapter/healthcheck"
 	"github.com/anditakaesar/uwa-back/adapter/httpserver"
@@ -40,10 +39,11 @@ func main() {
 func run() error {
 	addr := flag.String("addr", env.AppPort(), "http service address")
 	flag.Parse()
+	newClient := client.New()
 
 	logglyCore := log.NewLogglyZapCore(log.NewLogglyLogWriter(
 		log.LogglyLogWriterDependency{
-			HttpClient:    &http.Client{},
+			HttpClient:    newClient.HttpClient,
 			BaseUrl:       env.LogglyBaseUrl(),
 			CustomerToken: env.LogglyToken(),
 			Tag:           env.LogglyTag(),
@@ -60,7 +60,6 @@ func run() error {
 	notFoundHandler := NotFoundHandlerWithIpLogging(internalLogger, adapterDB.NewIpLogRepository(database))
 	internalRouter := way.NewRouter(notFoundHandler)
 
-	newClient := client.New()
 	middlewareAdapter := middleware.NewAdapter(middleware.Middleware{
 		Client:    newClient,
 		Log:       internalLogger,
@@ -139,7 +138,7 @@ func run() error {
 	return s.ListenAndServe()
 }
 
-func NotFoundHandlerWithIpLogging(internalLogger log.LoggerInterface, ipLogRepo database.IpLogRepositoryInterface) http.Handler {
+func NotFoundHandlerWithIpLogging(internalLogger log.LoggerInterface, ipLogRepo adapterDB.IpLogRepositoryInterface) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requesterIp := r.Header.Get(env.IPHeaderKey())
 		if env.Env() == "development" && requesterIp == "" {

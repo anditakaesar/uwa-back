@@ -22,8 +22,3 @@ tidy-vendor:
 	@go mod tidy
 	@go mod vendor
 
-prod-build:
-	@systemctl stop goweb
-	@go build -o ../app
-	@cp -r ./migrations/ ~/
-	@systemctl start goweb

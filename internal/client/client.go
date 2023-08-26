@@ -16,7 +16,7 @@ type API struct {
 }
 
 const (
-	DefaultTimeout      = 5 * time.Second
+	DefaultTimeout      = 10 * time.Second
 	MaxIdleConnsPerHost = 50
 	MaxConnsPerHost     = 50
 )

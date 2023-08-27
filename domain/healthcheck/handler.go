@@ -6,27 +6,24 @@ import (
 	"time"
 
 	"github.com/anditakaesar/uwa-back/application/context"
+	"github.com/anditakaesar/uwa-back/internal/env"
 	"github.com/anditakaesar/uwa-back/internal/handler"
-	"github.com/anditakaesar/uwa-back/internal/log"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/uuid"
 )
 
 type HandlerDependency struct {
-	Logger     log.LoggerInterface
 	AppContext context.AppContext
 }
 
 type Handler struct {
 	Resp       handler.ResponseInterface
-	Log        log.LoggerInterface
 	AppContext context.AppContext
 }
 
 func NewHandler(d HandlerDependency) Handler {
 	return Handler{
-		Resp:       handler.NewResponse(handler.Dep{Log: d.Logger}),
-		Log:        d.Logger,
+		Resp:       handler.NewResponse(handler.Dep{Log: d.AppContext.Logger}),
 		AppContext: d.AppContext,
 	}
 }
@@ -43,7 +40,7 @@ func (h Handler) CheckHealth() handler.EndpointHandler {
 
 func (h Handler) SendTestMail() handler.EndpointHandler {
 	return func(w http.ResponseWriter, r *http.Request) handler.ResponseInterface {
-		err := h.AppContext.Mailer.SendMail("anditakaesar@gmail.com", "Some Test Subject", "This is a body, Thank You!")
+		err := h.AppContext.Mailer.SendMail(env.EmailTestTo(), "Some Test Subject", "This is a body, Thank You!")
 
 		if err != nil {
 			return h.Resp.SetErrorWithStatus(http.StatusInternalServerError, err, 1, "error")
@@ -55,7 +52,7 @@ func (h Handler) SendTestMail() handler.EndpointHandler {
 
 func (h Handler) GetIpLog() handler.EndpointHandler {
 	return func(w http.ResponseWriter, r *http.Request) handler.ResponseInterface {
-		ipLog, _ := h.AppContext.IpLogRepo.GetIplogByAddress("127.0.0.1")
+		ipLog, _ := h.AppContext.IplogModel.GetIplogByAddress("127.0.0.1")
 		return h.Resp.SetOk(ipLog)
 	}
 }

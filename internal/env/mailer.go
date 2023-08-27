@@ -21,3 +21,7 @@ func EmailHost() string {
 func EmailPort() string {
 	return os.Getenv("EmailPort")
 }
+
+func EmailTestTo() string {
+	return os.Getenv("EmailTestTo")
+}

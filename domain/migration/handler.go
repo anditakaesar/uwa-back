@@ -1,36 +1,32 @@
 package migration
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 
+	json "github.com/anditakaesar/uwa-back/internal/json"
+
 	"github.com/anditakaesar/uwa-back/application/context"
 	"github.com/anditakaesar/uwa-back/internal/handler"
-	"github.com/anditakaesar/uwa-back/internal/log"
 	"github.com/golang-migrate/migrate/v4"
 	migratePg "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 type HandlerDependency struct {
-	Logger     log.LoggerInterface
 	AppContext context.AppContext
 }
 
 type Handler struct {
 	Resp       handler.ResponseInterface
-	Log        log.LoggerInterface
 	AppContext context.AppContext
 }
 
 func NewHandler(d HandlerDependency) Handler {
 	return Handler{
-		Resp:       handler.NewResponse(handler.Dep{Log: d.Logger}),
-		Log:        d.Logger,
+		Resp:       handler.NewResponse(handler.Dep{Log: d.AppContext.Logger}),
 		AppContext: d.AppContext,
 	}
 }
@@ -65,7 +61,7 @@ func (h Handler) DoMigration() handler.EndpointHandler {
 
 		var request MigrationRequest
 
-		err := json.NewDecoder(r.Body).Decode(&request)
+		err := json.Decode(&request, r.Body)
 		if err != nil {
 			return h.Resp.SetErrorWithStatus(http.StatusBadRequest, err, 1, err.Error())
 		}
@@ -94,9 +90,9 @@ func (h Handler) DoMigration() handler.EndpointHandler {
 
 func (h Handler) GetAvailableMigration() handler.EndpointHandler {
 	return func(w http.ResponseWriter, r *http.Request) handler.ResponseInterface {
-		files, err := ioutil.ReadDir("./migrations")
+		files, err := os.ReadDir("./migrations")
 		if err != nil {
-			h.Log.Error("[Handler][GetAvailableMigration] ioutil err", err)
+			h.AppContext.Logger.Error("[Handler][GetAvailableMigration] ioutil err", err)
 			return h.Resp.SetError(err, 1, "io error")
 		}
 

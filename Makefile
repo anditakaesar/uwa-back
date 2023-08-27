@@ -1,7 +1,11 @@
 migrationpath = migrations
 
 run-dev:
+	@echo "${PWD}"
 	@go run .
+
+build:
+	@go build
 
 pre-commit:
 	@gofmt -w ./..

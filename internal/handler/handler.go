@@ -1,14 +1,12 @@
 package handler
 
 import (
-	jsonEncoding "encoding/json"
 	"net/http"
+
+	json "github.com/anditakaesar/uwa-back/internal/json"
 
 	"github.com/anditakaesar/uwa-back/internal/constants"
 )
-
-// DefaultDecoder ...
-// var DefaultDecoder = schema.NewDecoder()
 
 // EndpointHandler ...
 type EndpointHandler func(http.ResponseWriter, *http.Request) ResponseInterface
@@ -72,7 +70,7 @@ func handleErrorResponse(w http.ResponseWriter, r *http.Request, res ResponseInt
 }
 
 func encodeResponse(w http.ResponseWriter, data interface{}) {
-	err := jsonEncoding.NewEncoder(w).Encode(data)
+	err := json.Encode(data, w)
 	if err != nil {
 		// log := util.BuildLogger()
 		// log.Warning(fmt.Sprintf("Error encode: %s", err.Error()))

@@ -16,7 +16,7 @@ func (m Middleware) IpLogging(h http.Handler) http.HandlerFunc {
 		}
 
 		if requesterIP != "" {
-			_, err := m.IpLogRepo.UpdateCounter(requesterIP)
+			_, err := m.IplogModel.UpdateCounter(requesterIP)
 			if err != nil {
 				m.Log.Error("[Middleware][IpLogging] UpdateCounter", err)
 			}

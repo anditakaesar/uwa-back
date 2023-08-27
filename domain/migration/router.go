@@ -6,29 +6,25 @@ import (
 	"github.com/anditakaesar/uwa-back/application/context"
 	"github.com/anditakaesar/uwa-back/application/services/router"
 	"github.com/anditakaesar/uwa-back/internal/constants"
-	"github.com/anditakaesar/uwa-back/internal/log"
 )
 
 type RouteDependecy struct {
 	Context    router.Context
-	Logger     log.LoggerInterface
 	AppContext context.AppContext
 }
 
 type MigrationRoute struct {
 	Context    router.Context
-	Logger     log.LoggerInterface
 	AppContext context.AppContext
 }
 
-func NewAdapter(d RouteDependecy) {
+func NewDomain(d RouteDependecy) {
 	route := MigrationRoute(d)
 	route.InitEndpoints()
 }
 
 func (r MigrationRoute) InitEndpoints() {
 	h := NewHandler(HandlerDependency{
-		Logger:     r.Logger,
 		AppContext: r.AppContext,
 	})
 

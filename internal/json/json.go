@@ -1,22 +1,28 @@
 package json
 
 import (
-	encoding "encoding/json"
 	"io"
+
+	encoder "github.com/goccy/go-json"
 )
 
 // Decode ...
 func Decode(v interface{}, r io.Reader) error {
-	return encoding.NewDecoder(r).Decode(v)
+	return encoder.NewDecoder(r).Decode(v)
+}
+
+// Encode ...
+func Encode(v interface{}, w io.Writer) error {
+	return encoder.NewEncoder(w).Encode(v)
 }
 
 // DecodeString ...
 func DecodeString(v interface{}, s string) error {
-	return encoding.Unmarshal([]byte(s), v)
+	return encoder.Unmarshal([]byte(s), v)
 }
 
 // EncodeString ...
 func EncodeString(v interface{}) (string, error) {
-	data, err := encoding.Marshal(v)
+	data, err := encoder.Marshal(v)
 	return string(data), err
 }

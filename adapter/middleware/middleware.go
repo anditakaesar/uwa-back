@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/anditakaesar/uwa-back/adapter/database"
+	"github.com/anditakaesar/uwa-back/adapter/models/iplog"
 	"github.com/anditakaesar/uwa-back/internal/client"
 	"github.com/anditakaesar/uwa-back/internal/log"
 )
@@ -19,16 +19,15 @@ type MiddlewareFunc = func(w http.ResponseWriter, r *http.Request) (*http.Reques
 type Middleware struct {
 	Client *client.Client
 	// UserDomain domain.UserDomainInterface
-	Log       log.LoggerInterface
-	IpLogRepo database.IpLogRepositoryInterface
+	Log        log.LoggerInterface
+	IplogModel iplog.IplogModelInterface
 }
 
 func NewAdapter(d Middleware) Middleware {
 	middleware := Middleware{
-		Client: d.Client,
-		// UserDomain: d.UserDomain,
-		Log:       d.Log,
-		IpLogRepo: d.IpLogRepo,
+		Client:     d.Client,
+		Log:        d.Log,
+		IplogModel: d.IplogModel,
 	}
 	return middleware
 }

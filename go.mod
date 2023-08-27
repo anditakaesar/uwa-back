@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/go-redis/redis/v7 v7.4.1
+	github.com/goccy/go-json v0.10.2
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.1

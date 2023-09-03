@@ -5,15 +5,15 @@ import (
 	"errors"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/anditakaesar/uwa-back/internal/env"
+	"go.uber.org/zap"
 )
 
 type BearerToken = []byte
 
 func (m Middleware) Guest(h http.Handler) http.HandlerFunc {
-	return m.Group(h, false, m.ApiToken, m.AccessToken)
+	return m.Group(h, false, m.ApiToken)
 }
 
 func (m Middleware) ApiToken(w http.ResponseWriter, r *http.Request) (*http.Request, *Error) {
@@ -30,41 +30,26 @@ func (m Middleware) ApiToken(w http.ResponseWriter, r *http.Request) (*http.Requ
 	return r, nil
 }
 
-func (m Middleware) AccessToken(w http.ResponseWriter, r *http.Request) (*http.Request, *Error) {
-	_, err := GetBearerToken(r)
-	UserContextKey := env.UserContext()
+func (m Middleware) JWT(w http.ResponseWriter, r *http.Request) (*http.Request, *Error) {
+	token, err := GetBearerToken(r)
+	unauthorizedErr := &Error{err, http.StatusUnauthorized}
 	if err != nil {
-		return nil, &Error{err, http.StatusUnauthorized}
+		m.Log.Error("error getting token", err)
+		return nil, unauthorizedErr
+	}
+	claims, err := m.UtilInterface.ValidateAndGetClaims(string(token))
+	if err != nil {
+		m.Log.Warning("error validating token", zap.Error(err))
+		return nil, unauthorizedErr
 	}
 
-	// user, err := m.UserDomain.GetUserByToken(r.Context(), string(token))
-	// if err != nil {
-	// 	m.Log.Error("[Middleware][AccessToken] get user by token failed", err)
-	// 	return nil, &Error{err, http.StatusUnauthorized}
-	// }
-
-	// if user == nil {
-	// 	return nil, &Error{err, http.StatusUnauthorized}
-	// }
-
-	type UserProfile struct {
-		Name      string
-		Email     string
-		CreatedAt time.Time
-	}
-
-	requestedUser := UserProfile{
-		Name:      "user.Name",
-		Email:     "user.Email",
-		CreatedAt: time.Now(),
-	}
-
-	requestWithContext := r.WithContext(context.WithValue(r.Context(), UserContextKey, requestedUser))
-
+	requestWithContext := r.WithContext(context.WithValue(r.Context(), env.JWTClaimsKey, claims))
 	return requestWithContext, nil
 }
 
-// GetBearerToken ...
+// GetBearerToken returns the bearer token from the Authorization header of an HTTP request.
+//
+// It takes an HTTP request object as a parameter and returns the bearer token and an error if any.
 func GetBearerToken(r *http.Request) (BearerToken, error) {
 	authorizationHeader := r.Header.Get("Authorization")
 	splitAuthorizationHeader := strings.Split(authorizationHeader, "Bearer")

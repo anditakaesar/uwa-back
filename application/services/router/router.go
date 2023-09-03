@@ -71,8 +71,8 @@ func (r *Context) RegisterEndpointWithPrefix(info EndpointInfo, prefix string) {
 func getVerificationMethod(m *ma.Middleware, verifications []constants.VerificationType) []ma.MiddlewareFunc {
 	return funk.Map(verifications, func(t constants.VerificationType) ma.MiddlewareFunc {
 		switch t {
-		case constants.AccessTokenValue:
-			return m.AccessToken
+		case constants.VerificationTypeConstants.JWT:
+			return m.JWT
 		default:
 			return m.ApiToken
 		}

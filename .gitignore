@@ -23,7 +23,7 @@ http/
 *.http
 
 # golang debug
-__debug_bin
+__debug_bin*
 
 # db file
 *.db
@@ -37,3 +37,7 @@ REST/
 # build
 ./app
 uwa-back
+
+# keys
+*.pem
+*.pub

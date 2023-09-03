@@ -24,3 +24,7 @@ export EmailTestTo=""
 export LogglyBaseUrl=""
 export LogglyToken=""
 export LogglyTag=""
+export JWTPrivateFile="testkey.pem"
+export JWTPublicFile="testkey.pub"
+export JWTExpiresIn="" # in hours
+export JWTClaimsToken=""

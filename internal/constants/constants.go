@@ -3,16 +3,16 @@ package constants
 type VerificationType int
 
 const (
-	APITokenValue    VerificationType = 1
-	AccessTokenValue VerificationType = 2
+	APITokenValue VerificationType = 1
+	JWTTokenValue VerificationType = 2
 )
 
 var VerificationTypeConstants = struct {
-	APIToken    VerificationType
-	AccessToken VerificationType
+	APIToken VerificationType
+	JWT      VerificationType
 }{
-	APIToken:    APITokenValue,
-	AccessToken: AccessTokenValue,
+	APIToken: APITokenValue,
+	JWT:      JWTTokenValue,
 }
 
 const (
@@ -27,3 +27,7 @@ var AvailableMimeType = struct {
 	ApplicationJson: ApplicationJsonMime,
 	TextPlain:       TextPlainMime,
 }
+
+const (
+	PhoneNumberRegex string = "^628\\d{9,12}$"
+)

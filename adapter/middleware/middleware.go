@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/anditakaesar/uwa-back/adapter/models/iplog"
+	"github.com/anditakaesar/uwa-back/adapter/util"
 	"github.com/anditakaesar/uwa-back/internal/client"
 	"github.com/anditakaesar/uwa-back/internal/log"
 )
@@ -17,17 +18,18 @@ type MiddlewareFunc = func(w http.ResponseWriter, r *http.Request) (*http.Reques
 
 // Middleware is a helper for route to validate a http Request
 type Middleware struct {
-	Client *client.Client
-	// UserDomain domain.UserDomainInterface
-	Log        log.LoggerInterface
-	IplogModel iplog.IplogModelInterface
+	Client        *client.Client
+	UtilInterface util.UtilInterface
+	Log           log.LoggerInterface
+	IplogModel    iplog.IplogModelInterface
 }
 
 func NewAdapter(d Middleware) Middleware {
 	middleware := Middleware{
-		Client:     d.Client,
-		Log:        d.Log,
-		IplogModel: d.IplogModel,
+		Client:        d.Client,
+		UtilInterface: d.UtilInterface,
+		Log:           d.Log,
+		IplogModel:    d.IplogModel,
 	}
 	return middleware
 }

@@ -1,0 +1,1 @@
+DELETE FROM roles where "name" IN ('admin', 'superadmin', 'user');

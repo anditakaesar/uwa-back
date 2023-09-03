@@ -5,8 +5,13 @@ import (
 	"github.com/anditakaesar/uwa-back/adapter/mailer"
 	"github.com/anditakaesar/uwa-back/adapter/middleware"
 	"github.com/anditakaesar/uwa-back/adapter/models/iplog"
+	roleModel "github.com/anditakaesar/uwa-back/adapter/models/role"
+	userModel "github.com/anditakaesar/uwa-back/adapter/models/user"
+	"github.com/anditakaesar/uwa-back/adapter/util"
 	applicationContext "github.com/anditakaesar/uwa-back/application/context"
+	roleSvc "github.com/anditakaesar/uwa-back/application/services/role"
 	routerSvc "github.com/anditakaesar/uwa-back/application/services/router"
+	userSvc "github.com/anditakaesar/uwa-back/application/services/user"
 	"github.com/anditakaesar/uwa-back/internal/client"
 	"github.com/anditakaesar/uwa-back/internal/env"
 	"github.com/anditakaesar/uwa-back/internal/log"
@@ -52,23 +57,31 @@ func NewInfrastructure() *Infrastructure {
 
 type InfraModels struct {
 	iplogModel iplog.IplogModelInterface
+	userModel  userModel.UserModelInterface
+	roleModel  roleModel.RoleModelInterface
 }
 
 func InitInfraModels(db *postgres.Database) *InfraModels {
 	return &InfraModels{
 		iplogModel: iplog.NewIplogModel(db),
+		userModel:  userModel.NewUserModel(db),
+		roleModel:  roleModel.NewRoleModel(db),
 	}
 }
 
 type InfraServices struct {
 	routerSvc routerSvc.Context
+	userSvc   userSvc.UserSeviceInterface
+	roleSvc   roleSvc.RoleSeviceInterface
 }
 
-func InitInfraServices(i *Infrastructure) *InfraServices {
+func InitInfraServices(i *Infrastructure, m *InfraModels) *InfraServices {
 	routerService := routerSvc.NewService(
 		i.HttpServer.Server, httpserver.RouterHelper{}, i.Middleware, "/api")
 	return &InfraServices{
 		routerSvc: routerService,
+		userSvc:   userSvc.NewUserService(m.userModel),
+		roleSvc:   roleSvc.NewRoleService(m.roleModel),
 	}
 }
 
@@ -86,14 +99,18 @@ func (i *Infrastructure) Init() error {
 	// prepare the models
 	infraModels := InitInfraModels(i.PostgresDb)
 
+	// prepare util interface
+	utilInt := util.NewUtilInterface()
+
 	i.InternalRouter = way.NewRouter(
 		way.NotFoundHandlerWithIpLogging(i.Logger, infraModels.iplogModel),
 	)
 
 	i.Middleware = middleware.NewAdapter(middleware.Middleware{
-		Client:     i.Client,
-		Log:        i.Logger,
-		IplogModel: infraModels.iplogModel,
+		Client:        i.Client,
+		Log:           i.Logger,
+		UtilInterface: utilInt,
+		IplogModel:    infraModels.iplogModel,
 	})
 
 	i.HttpServer = httpserver.NewAdapter(&httpserver.Adapter{
@@ -102,15 +119,15 @@ func (i *Infrastructure) Init() error {
 	})
 
 	// prepare the services
-	infraServices := InitInfraServices(i)
+	infraServices := InitInfraServices(i, infraModels)
 
 	// appContext
 	appContext := applicationContext.NewAppContext(applicationContext.AppContextDependency{
-		DB:         i.PostgresDb,
-		Logger:     i.Logger,
-		Redis:      i.Redis,
-		Mailer:     i.Mailer,
-		IplogModel: infraModels.iplogModel,
+		Logger:        i.Logger,
+		Redis:         i.Redis,
+		Mailer:        i.Mailer,
+		IplogModel:    infraModels.iplogModel,
+		UtilInterface: utilInt,
 	})
 
 	// initialize domain

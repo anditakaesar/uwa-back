@@ -3,6 +3,7 @@ package migration
 import (
 	"net/http"
 
+	"github.com/anditakaesar/uwa-back/adapter/database"
 	"github.com/anditakaesar/uwa-back/application/context"
 	"github.com/anditakaesar/uwa-back/application/services/router"
 	"github.com/anditakaesar/uwa-back/internal/constants"
@@ -11,11 +12,13 @@ import (
 type RouteDependecy struct {
 	Context    router.Context
 	AppContext context.AppContext
+	DB         database.DatabaseInterface
 }
 
 type MigrationRoute struct {
 	Context    router.Context
 	AppContext context.AppContext
+	DB         database.DatabaseInterface
 }
 
 func NewDomain(d RouteDependecy) {
@@ -26,6 +29,7 @@ func NewDomain(d RouteDependecy) {
 func (r MigrationRoute) InitEndpoints() {
 	h := NewHandler(HandlerDependency{
 		AppContext: r.AppContext,
+		DB:         r.DB,
 	})
 
 	r.Context.RegisterEndpoint(r.PostUpMigration(h))

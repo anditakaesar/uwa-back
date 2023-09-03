@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -77,7 +77,7 @@ func GetTestClient(statusCode int, response string) *Client {
 		response := &http.Response{
 			StatusCode: statusCode,
 			// Send response to be tested
-			Body: ioutil.NopCloser(bytes.NewBufferString(response)),
+			Body: io.NopCloser(bytes.NewBufferString(response)),
 			// Must be set to non-nil value or it panics
 			Header: make(http.Header),
 		}

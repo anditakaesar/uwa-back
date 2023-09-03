@@ -5,6 +5,7 @@ import (
 )
 
 type UserContextKey string
+type ContextKey string
 
 func AppName() string {
 	return os.Getenv("AppName")

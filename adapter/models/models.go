@@ -6,9 +6,9 @@ const (
 )
 
 type ChangesInfo struct {
-	CreatedBy      string `json:"createdBy"`
-	LastModifiedBy string `json:"lastModifiedBy"`
-	DeletedBy      string `json:"deletedBy"`
+	CreatedBy string `json:"createdBy"`
+	UpdatedBy string `json:"updatedBy"`
+	DeletedBy string `json:"deletedBy"`
 }
 
 type Paging struct {

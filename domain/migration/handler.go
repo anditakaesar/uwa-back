@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/anditakaesar/uwa-back/adapter/database"
 	json "github.com/anditakaesar/uwa-back/internal/json"
 
 	"github.com/anditakaesar/uwa-back/application/context"
@@ -17,23 +18,26 @@ import (
 
 type HandlerDependency struct {
 	AppContext context.AppContext
+	DB         database.DatabaseInterface
 }
 
 type Handler struct {
 	Resp       handler.ResponseInterface
 	AppContext context.AppContext
+	DB         database.DatabaseInterface
 }
 
 func NewHandler(d HandlerDependency) Handler {
 	return Handler{
 		Resp:       handler.NewResponse(handler.Dep{Log: d.AppContext.Logger}),
 		AppContext: d.AppContext,
+		DB:         d.DB,
 	}
 }
 
 func (h Handler) UpMigration() handler.EndpointHandler {
 	return func(w http.ResponseWriter, r *http.Request) handler.ResponseInterface {
-		sqlDB, _ := h.AppContext.DB.Get().DB()
+		sqlDB, _ := h.DB.Get().DB()
 		mydir, _ := os.Getwd()
 		driver, err := migratePg.WithInstance(sqlDB, &migratePg.Config{})
 		if err != nil {
@@ -56,7 +60,7 @@ func (h Handler) UpMigration() handler.EndpointHandler {
 func (h Handler) DoMigration() handler.EndpointHandler {
 	return func(w http.ResponseWriter, r *http.Request) handler.ResponseInterface {
 		type MigrationRequest struct {
-			Number uint `json:"number"`
+			Version uint `json:"version"`
 		}
 
 		var request MigrationRequest
@@ -68,7 +72,7 @@ func (h Handler) DoMigration() handler.EndpointHandler {
 
 		defer r.Body.Close()
 
-		sqlDB, _ := h.AppContext.DB.Get().DB()
+		sqlDB, _ := h.DB.Get().DB()
 		mydir, _ := os.Getwd()
 		driver, err := migratePg.WithInstance(sqlDB, &migratePg.Config{})
 		if err != nil {
@@ -80,7 +84,7 @@ func (h Handler) DoMigration() handler.EndpointHandler {
 			return h.Resp.SetErrorWithStatus(http.StatusInternalServerError, err, 1, err.Error())
 		}
 
-		err = m.Migrate(request.Number)
+		err = m.Migrate(request.Version)
 		if err != nil {
 			return h.Resp.SetErrorWithStatus(http.StatusInternalServerError, err, 1, err.Error())
 		}

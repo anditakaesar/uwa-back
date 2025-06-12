@@ -41,3 +41,7 @@ uwa-back
 # keys
 *.pem
 *.pub
+
+# compose up
+postgres_data/
+redis_cache/

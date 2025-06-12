@@ -31,7 +31,10 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.platforms }}
           push: true
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=My multi-arch image
           tags: |
             ghcr.io/${{ github.repository_owner }}/uwa-back:${{ github.ref_name }}
             ghcr.io/${{ github.repository_owner }}/uwa-back:latest

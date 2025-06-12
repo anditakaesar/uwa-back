@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.2.0](https://github.com/anditakaesar/uwa-back/compare/v2.1.0...v2.2.0) (2025-06-12)
+
+
+### Features
+
+* add multiarch image build ([fb04fd5](https://github.com/anditakaesar/uwa-back/commit/fb04fd59124ac06fa32dbb0622bd1001edc50eaa))
+
 ## [2.1.0](https://github.com/anditakaesar/uwa-back/compare/v2.0.1...v2.1.0) (2025-06-12)
 
 

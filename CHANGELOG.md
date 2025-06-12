@@ -1,6 +1,16 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [2.1.0](https://github.com/anditakaesar/uwa-back/compare/v2.0.1...v2.1.0) (2025-06-12)
+
+
+### Features
+
+* add docker build and example compose ([be07642](https://github.com/anditakaesar/uwa-back/commit/be076420a4102d65eb4b98bdbed7c9f8301c56ea))
+* update ip logger for 404 ([0ee85c8](https://github.com/anditakaesar/uwa-back/commit/0ee85c8ea9cac35f4e08443b1a10f3a8961c54a8))
+* update iplogging middleware ([e92ad8d](https://github.com/anditakaesar/uwa-back/commit/e92ad8db34f6b411de977b9fd84f36d37cde8ff5))
+* update to go 1.24 ([ee618c8](https://github.com/anditakaesar/uwa-back/commit/ee618c8ce45f8db9e3938c5de3dae9faeab08534))
 
 ### [2.0.1](https://github.com/anditakaesar/uwa-back/compare/v2.0.0...v2.0.1) (2023-09-03)
 

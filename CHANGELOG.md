@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.2.1](https://github.com/anditakaesar/uwa-back/compare/v2.2.0...v2.2.1) (2025-06-12)
+
+
+### Bug Fixes
+
+* add strategy platforms on build ([e3be13b](https://github.com/anditakaesar/uwa-back/commit/e3be13be790e868dd749a3a75fb171bdeb659f54))
+
 ## [2.2.0](https://github.com/anditakaesar/uwa-back/compare/v2.1.0...v2.2.0) (2025-06-12)
 
 
